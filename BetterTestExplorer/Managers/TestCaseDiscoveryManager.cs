@@ -152,6 +152,7 @@ namespace BetterTestExplorer.Managers
             }
 
             RaiseDiscoveryComplete(_discoverySessionSourceAssemblyPaths, isAborted);
+            _discoveryCompletionSource.SetResult(0);
         }
 
         public void HandleLogMessage(TestMessageLevel level, string message)

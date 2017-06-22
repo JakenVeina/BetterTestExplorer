@@ -204,6 +204,12 @@ namespace BetterTestExplorerTests.ManagersTests
             TestingUtilities.AssertExtensions.NotImplemented();
         }
 
+        [Test]
+        public void HandleDiscoveryComplete_Otherwise_SetsIsDiscoveryInProgressToFalse()
+        {
+            TestingUtilities.AssertExtensions.NotImplemented();
+        }
+
         #endregion HandleDiscoveryComplete Tests
 
         /**********************************************************************/
