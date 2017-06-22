@@ -26,7 +26,7 @@ namespace BetterTestExplorer.Managers
         /**********************************************************************/
         #region Methods
 
-        Task DiscoverTestsAsync(IEnumerable<string> sources);
+        Task DiscoverTestCasesAsync(IEnumerable<string> sources);
 
         Task CancelDiscoveryAsync();
 
@@ -62,19 +62,20 @@ namespace BetterTestExplorer.Managers
         #endregion Constructors
 
         /**********************************************************************/
-        #region IDiscoveryHandler
+        #region ITestCaseDiscoveryManager
 
         public bool IsDiscoveryInProgress => !_discoveryCompletionSource.Task.IsCompleted;
 
-        public Task DiscoverTestsAsync(IEnumerable<string> sourceASsemblyPaths)
+        public Task DiscoverTestCasesAsync(IEnumerable<string> sourceAssemblyPaths)
         {
             if (!_discoveryCompletionSource.Task.IsCompleted)
                 return _discoveryCompletionSource.Task;
 
-            _discoverySessionSourceAssemblyPaths = sourceASsemblyPaths ?? throw new ArgumentNullException(nameof(sourceASsemblyPaths));
+            _discoverySessionSourceAssemblyPaths = sourceAssemblyPaths ?? throw new ArgumentNullException(nameof(sourceAssemblyPaths));
+
             _eventContext = SynchronizationContext.Current;
             _discoveryCompletionSource = new TaskCompletionSource<int>();
-            return Task.Run(() => _vstest.DiscoverTests(sourceASsemblyPaths, null, this));
+            return Task.Run(() => _vstest.DiscoverTests(sourceAssemblyPaths, null, this));
         }
 
         public Task CancelDiscoveryAsync()
@@ -106,7 +107,7 @@ namespace BetterTestExplorer.Managers
             _eventContext.Post(x => DiscoveryComplete?.Invoke(this, new DiscoveryCompleteEventArgs(sourceAssemblyPaths, wasDiscoveryAborted)), null);
         }
 
-        #endregion IDiscoveryHandler
+        #endregion ITestCaseDiscoveryManager
 
         /**********************************************************************/
         #region ITestDiscoveryEventsHandler

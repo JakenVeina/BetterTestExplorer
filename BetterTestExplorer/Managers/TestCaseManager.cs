@@ -114,7 +114,7 @@ namespace BetterTestExplorer.Managers
 
             _sourceAssemblyPaths.Add(sourceAssemblyPath);
 
-            await _discoveryManager.DiscoverTestsAsync(Enumerable.Repeat(sourceAssemblyPath, 1));
+            await _discoveryManager.DiscoverTestCasesAsync(Enumerable.Repeat(sourceAssemblyPath, 1));
         }
 
         public async Task RemoveSourceAssemblyPathAsync(string sourceAssemblyPath)

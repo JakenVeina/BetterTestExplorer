@@ -212,7 +212,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             Task.Delay(100).Wait();
 
-            discoveryManager.DidNotReceive().DiscoverTestsAsync(Arg.Any<IEnumerable<string>>());
+            discoveryManager.DidNotReceive().DiscoverTestCasesAsync(Arg.Any<IEnumerable<string>>());
 
             discoveryManager.IsDiscoveryInProgress.Returns(false);
             taskCompletionSource.SetResult(0);
@@ -262,14 +262,14 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
             IEnumerable<string> receivedSources = null;
-            discoveryManager.When(x => x.DiscoverTestsAsync(Arg.Any<IEnumerable<string>>())).Do(x => receivedSources = (IEnumerable<string>)x[0]);
+            discoveryManager.When(x => x.DiscoverTestCasesAsync(Arg.Any<IEnumerable<string>>())).Do(x => receivedSources = (IEnumerable<string>)x[0]);
 
             var uut = new TestCaseManager(fileSystem, discoveryManager);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             var expected = fileSystem.Path.GetFullPath(sourceAssemblyPath);
 
-            await discoveryManager.Received().DiscoverTestsAsync(Arg.Any<IEnumerable<string>>());
+            await discoveryManager.Received().DiscoverTestCasesAsync(Arg.Any<IEnumerable<string>>());
             CollectionAssert.AreEquivalent(receivedSources, Enumerable.Repeat(expected, 1));
         }
 
