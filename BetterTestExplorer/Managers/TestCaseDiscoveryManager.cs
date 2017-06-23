@@ -10,7 +10,8 @@ using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
-using DiscoveryCompleteEventArgs = BetterTestExplorer.Common.DiscoveryCompleteEventArgs;
+
+using BetterTestExplorer.Common;
 
 namespace BetterTestExplorer.Managers
 {
@@ -41,7 +42,7 @@ namespace BetterTestExplorer.Managers
 
         event EventHandler<TestRunMessageEventArgs> MessageReceived;
 
-        event EventHandler<DiscoveryCompleteEventArgs> DiscoveryComplete;
+        event EventHandler<DiscoveryCompletedEventArgs> DiscoveryCompleted;
 
         #endregion Events
     }
@@ -73,7 +74,6 @@ namespace BetterTestExplorer.Managers
 
             _discoverySessionSourceAssemblyPaths = sourceAssemblyPaths ?? throw new ArgumentNullException(nameof(sourceAssemblyPaths));
 
-            _eventContext = SynchronizationContext.Current;
             _discoveryCompletionSource = new TaskCompletionSource<int>();
             return Task.Run(() => _vstest.DiscoverTests(sourceAssemblyPaths, null, this));
         }
@@ -92,19 +92,19 @@ namespace BetterTestExplorer.Managers
         public event EventHandler<DiscoveredTestsEventArgs> TestCasesDiscovered;
         private void RaiseTestCasesDiscovered(IEnumerable<TestCase> discoveredTestCases)
         {
-            _eventContext.Post(x => TestCasesDiscovered?.Invoke(this, new DiscoveredTestsEventArgs(discoveredTestCases)), null);
+            TestCasesDiscovered?.Invoke(this, new DiscoveredTestsEventArgs(discoveredTestCases));
         }
 
         public event EventHandler<TestRunMessageEventArgs> MessageReceived;
         private void RaiseMessageReceived(TestMessageLevel level, string message)
         {
-            _eventContext.Post(x => MessageReceived?.Invoke(this, new TestRunMessageEventArgs(level, message)), null);
+            MessageReceived?.Invoke(this, new TestRunMessageEventArgs(level, message));
         }
 
-        public event EventHandler<DiscoveryCompleteEventArgs> DiscoveryComplete;
+        public event EventHandler<DiscoveryCompletedEventArgs> DiscoveryCompleted;
         private void RaiseDiscoveryComplete(IEnumerable<string> sourceAssemblyPaths, bool wasDiscoveryAborted)
         {
-            _eventContext.Post(x => DiscoveryComplete?.Invoke(this, new DiscoveryCompleteEventArgs(sourceAssemblyPaths, wasDiscoveryAborted)), null);
+            DiscoveryCompleted?.Invoke(this, new DiscoveryCompletedEventArgs(sourceAssemblyPaths, wasDiscoveryAborted));
         }
 
         #endregion ITestCaseDiscoveryManager
@@ -200,8 +200,6 @@ namespace BetterTestExplorer.Managers
         private IEnumerable<string> _discoverySessionSourceAssemblyPaths;
 
         private long _discoverySessionTotalTestCasesDiscovered;
-
-        private SynchronizationContext _eventContext = SynchronizationContext.Current;
 
         private TaskCompletionSource<int> _discoveryCompletionSource = new TaskCompletionSource<int>();
 

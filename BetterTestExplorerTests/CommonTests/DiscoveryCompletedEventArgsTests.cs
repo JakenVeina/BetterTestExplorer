@@ -12,7 +12,7 @@ using BetterTestExplorer.Common;
 namespace BetterTestExplorerTests.CommonTests
 {
     [TestFixture]
-    public class DiscoveryCompleteEventArgsTests
+    public class DiscoveryCompletedEventArgsTests
     {
         /**********************************************************************/
         #region Constructor() Tests
@@ -20,7 +20,7 @@ namespace BetterTestExplorerTests.CommonTests
         [Test]
         public void Constructor_Default_Always_SetsSourceAssemblyPathsToEmpty()
         {
-            var uut = new DiscoveryCompleteEventArgs();
+            var uut = new DiscoveryCompletedEventArgs();
 
             var result = uut.SourceAssemblyPaths;
 
@@ -30,7 +30,7 @@ namespace BetterTestExplorerTests.CommonTests
         [Test]
         public void Constructor_Default_Always_SetsWasDiscoveryAbortedToFalse()
         {
-            var uut = new DiscoveryCompleteEventArgs();
+            var uut = new DiscoveryCompletedEventArgs();
 
             var result = uut.WasDiscoveryAborted;
         }
@@ -46,7 +46,7 @@ namespace BetterTestExplorerTests.CommonTests
             var sourceAssemblyPaths = (IEnumerable<string>)null;
             var wasDiscoveryAborted = true;
 
-            var result = Assert.Throws<ArgumentNullException>(() => new DiscoveryCompleteEventArgs(sourceAssemblyPaths, wasDiscoveryAborted));
+            var result = Assert.Throws<ArgumentNullException>(() => new DiscoveryCompletedEventArgs(sourceAssemblyPaths, wasDiscoveryAborted));
 
             Assert.AreEqual("sourceAssemblyPaths", result.ParamName);
         }
@@ -57,7 +57,7 @@ namespace BetterTestExplorerTests.CommonTests
             var sourceAssemblyPaths = Enumerable.Range(1, sourceAssemblyPathCount).Select(x => x.ToString());
             var wasDiscoveryAborted = true;
 
-            var uut = new DiscoveryCompleteEventArgs(sourceAssemblyPaths, wasDiscoveryAborted);
+            var uut = new DiscoveryCompletedEventArgs(sourceAssemblyPaths, wasDiscoveryAborted);
 
             var result = uut.SourceAssemblyPaths;
 
@@ -70,7 +70,7 @@ namespace BetterTestExplorerTests.CommonTests
         {
             var sourceAssemblyPaths = Enumerable.Empty<string>();
 
-            var uut = new DiscoveryCompleteEventArgs(sourceAssemblyPaths, wasDiscoveryAborted);
+            var uut = new DiscoveryCompletedEventArgs(sourceAssemblyPaths, wasDiscoveryAborted);
 
             var result = uut.WasDiscoveryAborted;
 

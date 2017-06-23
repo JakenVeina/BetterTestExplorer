@@ -83,7 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonTests\DiscoveryCompleteEventArgsTests.cs" />
+    <Compile Include="CommonTests\DiscoveryCompletedEventArgsTests.cs" />
     <Compile Include="CommonTests\TestCasesEventArgsTests.cs" />
     <Compile Include="ManagersTests\TestCaseDiscoveryManagerTests.cs" />
     <Compile Include="ManagersTests\TestCaseManagerTests.cs" />

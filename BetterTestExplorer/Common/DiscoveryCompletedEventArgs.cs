@@ -9,17 +9,17 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace BetterTestExplorer.Common
 {
-    internal class DiscoveryCompleteEventArgs : EventArgs
+    internal class DiscoveryCompletedEventArgs : EventArgs
     {
         /**********************************************************************/
         #region Constructor
 
-        public DiscoveryCompleteEventArgs()
+        public DiscoveryCompletedEventArgs()
         {
             _sourceAssemblyPaths = new HashSet<string>();
         }
 
-        public DiscoveryCompleteEventArgs(IEnumerable<string> sourceAssemblyPaths, bool wasDiscoveryAborted)
+        public DiscoveryCompletedEventArgs(IEnumerable<string> sourceAssemblyPaths, bool wasDiscoveryAborted)
         {
             if (sourceAssemblyPaths == null)
                 throw new ArgumentNullException(nameof(sourceAssemblyPaths));

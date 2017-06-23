@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
-using DiscoveryCompleteEventArgs = BetterTestExplorer.Common.DiscoveryCompleteEventArgs;
+using DiscoveryCompletedEventArgs = BetterTestExplorer.Common.DiscoveryCompletedEventArgs;
 
 using BetterTestExplorer.Common;
 using BetterTestExplorer.Managers;
@@ -87,7 +87,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             var uut = new TestCaseManager(fileSystem, discoveryManager);
 
-            discoveryManager.Received(1).DiscoveryComplete += Arg.Any<EventHandler<DiscoveryCompleteEventArgs>>();
+            discoveryManager.Received(1).DiscoveryCompleted += Arg.Any<EventHandler<DiscoveryCompletedEventArgs>>();
         }
 
         #endregion Constructor Tests
@@ -639,7 +639,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var testCase = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
-            discoveryManager.DiscoveryComplete += Raise.EventWith(discoveryManager, new DiscoveryCompleteEventArgs(Enumerable.Empty<string>(), false));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
 
             CollectionAssert.Contains(uut.TestCases, testCase);
         }
@@ -655,7 +655,7 @@ namespace BetterTestExplorerTests.ManagersTests
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
             var expected = uut.TestCases.ToList();
 
-            discoveryManager.DiscoveryComplete += Raise.EventWith(discoveryManager, new DiscoveryCompleteEventArgs(Enumerable.Empty<string>(), true));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), true));
 
             var result = uut.TestCases;
 
@@ -675,7 +675,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
             uut.TestCasesRemoved += handler;
 
-            discoveryManager.DiscoveryComplete += Raise.EventWith(discoveryManager, new DiscoveryCompleteEventArgs(Enumerable.Empty<string>(), true));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), true));
 
             handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>());
         }
@@ -691,7 +691,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), sourceAssemblyPath);
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
-            discoveryManager.DiscoveryComplete += Raise.EventWith(discoveryManager, new DiscoveryCompleteEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
             var result = uut.TestCases;
 
@@ -714,7 +714,7 @@ namespace BetterTestExplorerTests.ManagersTests
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>())).Do(x => receivedArgs = (TestCasesEventArgs)x[1]);
             uut.TestCasesRemoved += handler;
 
-            discoveryManager.DiscoveryComplete += Raise.EventWith(discoveryManager, new DiscoveryCompleteEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
             handler.Received(1).Invoke(uut, Arg.Any<TestCasesEventArgs>());
             CollectionAssert.Contains(receivedArgs.TestCasesById.Values, testCase);

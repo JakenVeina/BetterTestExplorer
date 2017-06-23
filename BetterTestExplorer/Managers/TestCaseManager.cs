@@ -11,7 +11,6 @@ using System.Windows.Threading;
 using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
-using DiscoveryCompleteEventArgs = BetterTestExplorer.Common.DiscoveryCompleteEventArgs;
 
 using BetterTestExplorer.Common;
 
@@ -65,7 +64,7 @@ namespace BetterTestExplorer.Managers
             _discoveryManager = discoveryManager ?? throw new ArgumentNullException(nameof(discoveryManager));
 
             _discoveryManager.TestCasesDiscovered += OnTestCasesDiscovered;
-            _discoveryManager.DiscoveryComplete += OnDiscoveryComplete;
+            _discoveryManager.DiscoveryCompleted += OnDiscoveryComplete;
         }
 
         #endregion Constructors
@@ -205,7 +204,7 @@ namespace BetterTestExplorer.Managers
                 RaiseTestCasesModified(modifiedTestCases);
         }
 
-        private void OnDiscoveryComplete(object sender, DiscoveryCompleteEventArgs e)
+        private void OnDiscoveryComplete(object sender, DiscoveryCompletedEventArgs e)
         {
             if (e == null)
                 throw new ArgumentNullException(nameof(e));

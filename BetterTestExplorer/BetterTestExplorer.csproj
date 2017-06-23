@@ -60,7 +60,7 @@
       <DependentUpon>BetterTestExplorerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="BetterTestExplorerPackage.cs" />
-    <Compile Include="Common\DiscoveryCompleteEventArgs.cs" />
+    <Compile Include="Common\DiscoveryCompletedEventArgs.cs" />
     <Compile Include="Common\MasterFactory.cs" />
     <Compile Include="Common\TestCasesEventArgs.cs" />
     <Compile Include="Managers\TestCaseManager.cs" />
