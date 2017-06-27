@@ -19,15 +19,8 @@ using BetterTestExplorer.Managers;
 
 namespace BetterTestExplorer.ViewModels
 {
-    public interface IExplorerVM : INotifyPropertyChanged
+    public interface IExplorerVM : ITestContainerVM, INotifyPropertyChanged
     {
-        /**********************************************************************/
-        #region Properties
-
-        ReadOnlyObservableCollection<ITestPointVM> TestPoints { get; }
-
-        #endregion Properties
-
         /**********************************************************************/
         #region Commands
 

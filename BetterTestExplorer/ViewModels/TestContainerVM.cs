@@ -19,24 +19,19 @@ namespace BetterTestExplorer.ViewModels
 
         bool IsExpanded { get; set; }
 
-        ReadOnlyObservableCollection<ITestPointVM> Children { get; }
+        ReadOnlyObservableCollection<ITestPointVM> TestPoints { get; }
 
         #endregion Properties
     }
 
-    public class TestContainerVM : TestPointVM, ITestContainerVM
+    internal abstract class TestContainerVM : TestPointVM, ITestContainerVM
     {
         /**********************************************************************/
         #region Constructor
 
-        internal TestContainerVM(ITestCaseManager testDiscoveryManager, string name) : base(testDiscoveryManager)
+        internal TestContainerVM()
         {
-            Name = name;
-
-            _children = new ObservableCollection<ITestPointVM>();
-            _readOnlyChildren = new ReadOnlyObservableCollection<ITestPointVM>(_children);
-
-            _runCommand = new DelegateCommand(x => System.Windows.MessageBox.Show("TestContainerVM.RunCommand.Execute()"));
+            TestPoints = new ReadOnlyObservableCollection<ITestPointVM>(_testPoints);
         }
 
         #endregion Constructor
@@ -58,17 +53,19 @@ namespace BetterTestExplorer.ViewModels
         }
         private bool _isExpanded;
 
-        public ReadOnlyObservableCollection<ITestPointVM> Children => _readOnlyChildren;
-        private readonly ReadOnlyObservableCollection<ITestPointVM> _readOnlyChildren;
-        private readonly ObservableCollection<ITestPointVM> _children;
+        public ReadOnlyObservableCollection<ITestPointVM> TestPoints { get; }
+        protected readonly ObservableCollection<ITestPointVM> _testPoints = new ObservableCollection<ITestPointVM>();
 
         #endregion ITestContainerVM
 
         /**********************************************************************/
         #region ITestPointVM
 
-        public override ICommand RunCommand => _runCommand;
-        private readonly ICommand _runCommand;
+        public override ICommand RunCommand
+            => _runCommand ?? (_runCommand = new DelegateCommand(
+                   _ => System.Windows.MessageBox.Show($"{typeof(TestContainerVM).FullName}.{nameof(RunCommand)}"),
+                   _ => true));
+        private ICommand _runCommand;
 
         #endregion ITestPointVM
     }

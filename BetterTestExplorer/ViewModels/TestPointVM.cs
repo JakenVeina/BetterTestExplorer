@@ -41,16 +41,6 @@ namespace BetterTestExplorer.ViewModels
     public abstract class TestPointVM : ITestPointVM, IDisposable
     {
         /**********************************************************************/
-        #region Constructors
-
-        internal TestPointVM(ITestCaseManager testDiscoveryManager)
-        {
-            _testDisoveryManager = testDiscoveryManager ?? throw new ArgumentNullException(nameof(testDiscoveryManager));   
-        }
-
-        #endregion Constructors
-
-        /**********************************************************************/
         #region ITestPointVM
 
         public virtual string Name
@@ -114,39 +104,25 @@ namespace BetterTestExplorer.ViewModels
         /**********************************************************************/
         #region IDisposable
 
-        public void Dispose() => Dispose(true);
+        ~TestPointVM()
+        {
+            Dispose(false);
+        }
 
-        private bool _hasDisposed = false;
-        protected virtual void Dispose(bool disposeManagedResources)
+        public void Dispose()
         {
             if (_hasDisposed)
                 return;
 
-            if (disposeManagedResources)
-            {
-                _testDisoveryManager.TestsAdded -= OnTestsDiscovered;
-                _testDisoveryManager.TestDiscoveryComplete -= OnTestDiscoveryComplete;
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
 
             _hasDisposed = true;
         }
 
+        private bool _hasDisposed = false;
+        protected virtual void Dispose(bool disposeManagedResources) { }
+
         #endregion IDisposable
-
-        /**********************************************************************/
-        #region Event Handlers
-
-        protected virtual void OnTestsDiscovered(object sender, TestsAddedEventArgs args) { }
-
-        protected virtual void OnTestDiscoveryComplete(object sender, EventArgs args) { }
-
-        #endregion Event Handlers
-
-        /**********************************************************************/
-        #region Private Fields
-
-        private ITestCaseManager _testDisoveryManager;
-
-        #endregion Private Fields
     }
 }

@@ -19,7 +19,7 @@ using BetterTestExplorer.Managers;
 namespace BetterTestExplorerTests.ManagersTests
 {
     [TestFixture]
-    public class TestCaseManagerTests
+    public class TestResultManagerTests
     {
         /**********************************************************************/
         #region Constructor Tests
@@ -30,7 +30,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = (IFileSystem)null;
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestCaseManager(fileSystem, discoveryManager));
+            var result = Assert.Throws<ArgumentNullException>(() => new TestResultManager(fileSystem, discoveryManager));
 
             Assert.AreEqual("fileSystem", result.ParamName);
         }
@@ -41,7 +41,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = (ITestCaseDiscoveryManager)null;
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestCaseManager(fileSystem, discoveryManager));
+            var result = Assert.Throws<ArgumentNullException>(() => new TestResultManager(fileSystem, discoveryManager));
 
             Assert.AreEqual("discoveryManager", result.ParamName);
         }
@@ -52,7 +52,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             CollectionAssert.IsEmpty(uut.SourceAssemblyPaths);
         }
@@ -63,9 +63,9 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
-            CollectionAssert.IsEmpty(uut.TestCases);
+            CollectionAssert.IsEmpty(uut.TestResults);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             discoveryManager.Received(1).TestCasesDiscovered += Arg.Any<EventHandler<DiscoveredTestsEventArgs>>();
         }
@@ -85,7 +85,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             discoveryManager.Received(1).DiscoveryCompleted += Arg.Any<EventHandler<DiscoveryCompletedEventArgs>>();
         }
@@ -101,7 +101,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var result = Assert.ThrowsAsync<ArgumentNullException>(async () => await uut.AddSourceAssemblyPathAsync(null));
 
@@ -117,7 +117,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -134,7 +134,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath));
 
@@ -149,7 +149,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath));
@@ -167,7 +167,7 @@ namespace BetterTestExplorerTests.ManagersTests
             discoveryManager.IsDiscoveryInProgress.Returns(true, true, true, false, true);
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(Task.CompletedTask);
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -184,7 +184,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var taskCompletionSource = new TaskCompletionSource<int>();
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(taskCompletionSource.Task);
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var task = uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -206,7 +206,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var taskCompletionSource = new TaskCompletionSource<int>();
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(taskCompletionSource.Task);
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var task = uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -228,7 +228,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var taskCompletionSource = new TaskCompletionSource<int>();
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(taskCompletionSource.Task);
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var task = uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -247,7 +247,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             var expected = fileSystem.Path.GetFullPath(sourceAssemblyPath);
@@ -264,7 +264,7 @@ namespace BetterTestExplorerTests.ManagersTests
             IEnumerable<string> receivedSources = null;
             discoveryManager.When(x => x.DiscoverTestCasesAsync(Arg.Any<IEnumerable<string>>())).Do(x => receivedSources = (IEnumerable<string>)x[0]);
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             var expected = fileSystem.Path.GetFullPath(sourceAssemblyPath);
@@ -284,7 +284,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var result = Assert.ThrowsAsync<ArgumentNullException>(async () => await uut.RemoveSourceAssemblyPathAsync(null));
 
@@ -300,7 +300,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             path.ClearReceivedCalls();
 
@@ -319,7 +319,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath));
 
@@ -334,7 +334,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath));
 
@@ -349,7 +349,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
             discoveryManager.ClearReceivedCalls();
@@ -368,7 +368,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -392,7 +392,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -405,7 +405,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             Task.Delay(100).Wait();
 
-            CollectionAssert.Contains(uut.TestCases, testCase);
+            CollectionAssert.Contains(uut.TestResults, testCase);
 
             discoveryManager.IsDiscoveryInProgress.Returns(false);
             taskCompletionSource.SetResult(0);
@@ -418,7 +418,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -427,14 +427,14 @@ namespace BetterTestExplorerTests.ManagersTests
             var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), fileSystem.Path.GetFullPath(sourceAssemblyPath));
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
-            var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
-            uut.TestCasesRemoved += handler;
+            var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
+            uut.TestResultsRemoved += handler;
 
             var task = uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
 
             Task.Delay(100).Wait();
 
-            handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>());
+            handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>());
 
             discoveryManager.IsDiscoveryInProgress.Returns(false);
             taskCompletionSource.SetResult(0);
@@ -447,7 +447,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -473,7 +473,7 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
             await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
@@ -489,13 +489,13 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), fileSystem.Path.GetFullPath(sourceAssemblyPath));
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
             await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
-            var expected = uut.TestCases.Where(x => x.Source == fileSystem.Path.GetFullPath(sourceAssemblyPath));
+            var expected = uut.TestResults.Where(x => x.Source == fileSystem.Path.GetFullPath(sourceAssemblyPath));
 
             CollectionAssert.DoesNotContain(expected, testCase);            
         }
@@ -507,20 +507,20 @@ namespace BetterTestExplorerTests.ManagersTests
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), fileSystem.Path.GetFullPath(sourceAssemblyPath));
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
-            var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
-            TestCasesEventArgs receivedArgs = null;
-            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>())).Do(x => receivedArgs = (TestCasesEventArgs)x[1]);
-            uut.TestCasesRemoved += handler;
+            var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
+            TestResultsEventArgs receivedArgs = null;
+            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>())).Do(x => receivedArgs = (TestResultsEventArgs)x[1]);
+            uut.TestResultsRemoved += handler;
 
             await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
 
-            handler.Received(1).Invoke(uut, Arg.Any<TestCasesEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestCasesById.Values, testCase);
+            handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
+            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase);
         }
 
         #endregion RemoveSourceAssemblyPathAsync Tests
@@ -537,12 +537,12 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var testCase = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
-            CollectionAssert.Contains(uut.TestCases, testCase);
+            CollectionAssert.Contains(uut.TestResults, testCase);
         }
 
         [Test]
@@ -551,17 +551,17 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
-            var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
-            TestCasesEventArgs receivedArgs = null;
-            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>())).Do(x => receivedArgs = (TestCasesEventArgs)x[1]);
-            uut.TestCasesAdded += handler;
+            var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
+            TestResultsEventArgs receivedArgs = null;
+            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>())).Do(x => receivedArgs = (TestResultsEventArgs)x[1]);
+            uut.TestResultsAdded += handler;
             var testCase = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
-            handler.Received(1).Invoke(uut, Arg.Any<TestCasesEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestCasesById.Values, testCase);
+            handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
+            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase);
         }
 
         [Test]
@@ -570,7 +570,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var testCase1 = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase1, 1)));
@@ -578,7 +578,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var testCase2 = new TestCase() { Id = testCase1.Id };
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase2, 1)));
 
-            CollectionAssert.Contains(uut.TestCases, testCase2);
+            CollectionAssert.Contains(uut.TestResults, testCase2);
         }
 
         [Test]
@@ -587,7 +587,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var testCase1 = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase1, 1)));
@@ -595,7 +595,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var testCase2 = new TestCase() { Id = testCase1.Id };
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase2, 1)));
 
-            CollectionAssert.DoesNotContain(uut.TestCases, testCase1);
+            CollectionAssert.DoesNotContain(uut.TestResults, testCase1);
         }
 
         [Test]
@@ -604,21 +604,21 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
 
             var testCase1 = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase1, 1)));
 
-            var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
-            TestCasesEventArgs receivedArgs = null;
-            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>())).Do(x => receivedArgs = (TestCasesEventArgs)x[1]);
-            uut.TestCasesModified += handler;
+            var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
+            TestResultsEventArgs receivedArgs = null;
+            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>())).Do(x => receivedArgs = (TestResultsEventArgs)x[1]);
+            uut.TestResultsModified += handler;
 
             var testCase2 = new TestCase() { Id = testCase1.Id };
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase2, 1)));
 
-            handler.Received(1).Invoke(uut, Arg.Any<TestCasesEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestCasesById.Values, testCase2);
+            handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
+            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase2);
         }
 
         #endregion DiscoveryManager.TestCasesDiscovered Tests
@@ -635,13 +635,13 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             var testCase = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
 
-            CollectionAssert.Contains(uut.TestCases, testCase);
+            CollectionAssert.Contains(uut.TestResults, testCase);
         }
 
         [Test]
@@ -650,14 +650,14 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             var testCase = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
-            var expected = uut.TestCases.ToList();
+            var expected = uut.TestResults.ToList();
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), true));
 
-            var result = uut.TestCases;
+            var result = uut.TestResults;
 
             CollectionAssert.AreEqual(expected, result);
         }
@@ -668,16 +668,17 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             var testCase = new TestCase();
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
 
-            var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
-            uut.TestCasesRemoved += handler;
+            var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
+            uut.TestResultsRemoved += handler;
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), true));
 
-            handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>());
+            handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>());
         }
 
         [Test]
@@ -686,14 +687,15 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             var sourceAssemblyPath = "DummySource";
             var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), sourceAssemblyPath);
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
-            var result = uut.TestCases;
+            var result = uut.TestResults;
 
             CollectionAssert.IsEmpty(result);
         }
@@ -704,20 +706,21 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
 
-            var uut = new TestCaseManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager);
             var sourceAssemblyPath = "DummySource";
             var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), sourceAssemblyPath);
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
-            var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
-            TestCasesEventArgs receivedArgs = null;
-            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>())).Do(x => receivedArgs = (TestCasesEventArgs)x[1]);
-            uut.TestCasesRemoved += handler;
+            var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
+            TestResultsEventArgs receivedArgs = null;
+            handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>())).Do(x => receivedArgs = (TestResultsEventArgs)x[1]);
+            uut.TestResultsRemoved += handler;
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
-            handler.Received(1).Invoke(uut, Arg.Any<TestCasesEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestCasesById.Values, testCase);
+            handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
+            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase);
         }
 
         #endregion DiscoveryManager.DiscoveryComplete Tests

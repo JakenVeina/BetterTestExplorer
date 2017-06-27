@@ -6,12 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
+using VsTestPlatform = Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 using BetterTestExplorer.Common;
+using BetterTestExplorer.TestPlatform;
 
 namespace BetterTestExplorer.Managers
 {
@@ -38,7 +39,7 @@ namespace BetterTestExplorer.Managers
         /**********************************************************************/
         #region Events
 
-        event EventHandler<DiscoveredTestsEventArgs> TestCasesDiscovered;
+        event EventHandler<TestCasesEventArgs> TestCasesDiscovered;
 
         event EventHandler<TestRunMessageEventArgs> MessageReceived;
 
@@ -53,8 +54,10 @@ namespace BetterTestExplorer.Managers
         #region Constructors
 
         // If you think you need to use this, and you're not a Factory or Unit Test, you're wrongc
-        internal TestCaseDiscoveryManager(IVsTestConsoleWrapper vstest)
+        internal TestCaseDiscoveryManager(ITestObjectFactory testObjectFactory, IVsTestConsoleWrapper vstest)
         {
+            _testObjectFactory = testObjectFactory ?? throw new ArgumentNullException(nameof(testObjectFactory));
+
             _vstest = vstest ?? throw new ArgumentNullException(nameof(vstest));
 
             _discoveryCompletionSource.SetResult(0);
@@ -89,10 +92,10 @@ namespace BetterTestExplorer.Managers
             return _discoveryCompletionSource.Task;
         }
 
-        public event EventHandler<DiscoveredTestsEventArgs> TestCasesDiscovered;
-        private void RaiseTestCasesDiscovered(IEnumerable<TestCase> discoveredTestCases)
+        public event EventHandler<TestCasesEventArgs> TestCasesDiscovered;
+        private void RaiseTestCasesDiscovered(IEnumerable<ITestCase> discoveredTestCases)
         {
-            TestCasesDiscovered?.Invoke(this, new DiscoveredTestsEventArgs(discoveredTestCases));
+            TestCasesDiscovered?.Invoke(this, new TestCasesEventArgs(discoveredTestCases));
         }
 
         public event EventHandler<TestRunMessageEventArgs> MessageReceived;
@@ -112,7 +115,7 @@ namespace BetterTestExplorer.Managers
         /**********************************************************************/
         #region ITestDiscoveryEventsHandler
 
-        public void HandleDiscoveredTests(IEnumerable<TestCase> discoveredTestCases)
+        public void HandleDiscoveredTests(IEnumerable<VsTestPlatform.TestCase> discoveredTestCases)
         {
             if (_discoveryCompletionSource.Task.IsCompleted)
             {
@@ -126,11 +129,12 @@ namespace BetterTestExplorer.Managers
                 return;
             }
 
-            _discoverySessionTotalTestCasesDiscovered += discoveredTestCases.Count();
-            RaiseTestCasesDiscovered(discoveredTestCases);
+            var translatedTests = discoveredTestCases.Select(x => _testObjectFactory.TranslateTestCase(x)).ToArray();
+            _discoverySessionTotalTestCasesDiscovered += translatedTests.Length;
+            RaiseTestCasesDiscovered(translatedTests);
         }
 
-        public void HandleDiscoveryComplete(long totalTests, IEnumerable<TestCase> lastChunk, bool isAborted)
+        public void HandleDiscoveryComplete(long totalTests, IEnumerable<VsTestPlatform.TestCase> lastChunk, bool isAborted)
         {
             if (_discoveryCompletionSource.Task.IsCompleted)
             {
@@ -138,12 +142,13 @@ namespace BetterTestExplorer.Managers
                 return;
             }
 
-            if (lastChunk == null)            {
+            if (lastChunk == null)
+            { 
                 // PENDING: vstest error, log this
-                return;
+                isAborted = true;
             }
-
-            HandleDiscoveredTests(lastChunk);
+            else
+                HandleDiscoveredTests(lastChunk);
 
             if(totalTests != _discoverySessionTotalTestCasesDiscovered)
             {
@@ -194,6 +199,8 @@ namespace BetterTestExplorer.Managers
 
         /**********************************************************************/
         #region Private Fields
+
+        private readonly ITestObjectFactory _testObjectFactory;
 
         private readonly IVsTestConsoleWrapper _vstest;
 

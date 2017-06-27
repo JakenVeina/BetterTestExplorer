@@ -16,23 +16,23 @@ using BetterTestExplorer.Common;
 
 namespace BetterTestExplorer.Managers
 {
-    internal interface ITestCaseManager
+    public interface ITestResultManager
     {
         /**********************************************************************/
         #region Properties
 
         IReadOnlyCollection<string> SourceAssemblyPaths { get; }
 
-        IReadOnlyCollection<TestCase> TestCases { get; }
+        IReadOnlyCollection<TestResult> TestResults { get; }
 
         #endregion Properties
 
         /**********************************************************************/
         #region Methods
 
-        TestCase GetTestCase(Guid id);
+        TestResult GetTestResult(Guid id);
 
-        bool TryGetTestCase(Guid id, out TestCase testCase);
+        bool TryGetTestResult(Guid id, out TestResult testResult);
 
         Task AddSourceAssemblyPathAsync(string sourceAssemblyPath);
 
@@ -43,22 +43,22 @@ namespace BetterTestExplorer.Managers
         /**********************************************************************/
         #region Events
 
-        event EventHandler<TestCasesEventArgs> TestCasesAdded;
+        event EventHandler<TestResultsEventArgs> TestResultsAdded;
 
-        event EventHandler<TestCasesEventArgs> TestCasesModified;
+        event EventHandler<TestResultsEventArgs> TestResultsModified;
 
-        event EventHandler<TestCasesEventArgs> TestCasesRemoved;
+        event EventHandler<TestResultsEventArgs> TestResultsRemoved;
 
         #endregion Events
     }
 
-    internal partial class TestCaseManager : ITestCaseManager
+    internal class TestResultManager : ITestResultManager
     {
         /**********************************************************************/
         #region Constructors
 
         // If you think you need to use this, and you're not a Factory or Unit Test, you're wrongc
-        internal TestCaseManager(IFileSystem fileSystem, ITestCaseDiscoveryManager discoveryManager)
+        internal TestResultManager(IFileSystem fileSystem, ITestCaseDiscoveryManager discoveryManager)
         {
             _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             _discoveryManager = discoveryManager ?? throw new ArgumentNullException(nameof(discoveryManager));
@@ -75,19 +75,19 @@ namespace BetterTestExplorer.Managers
         public IReadOnlyCollection<string> SourceAssemblyPaths => _sourceAssemblyPaths;
         private readonly HashSet<string> _sourceAssemblyPaths = new HashSet<string>();
 
-        public IReadOnlyCollection<TestCase> TestCases => _testCasesById.Values;
+        public IReadOnlyCollection<TestCase> TestResults => _testResultsByTestCaseId.Values;
 
-        public TestCase GetTestCase(Guid id)
+        public TestResult GetTestResult(Guid id)
         {
-            if (!_testCasesById.TryGetValue(id, out var testCase))
-                throw new ArgumentException($"No {nameof(TestCase)} exists with the given {nameof(TestCase.Id)} value", nameof(id));
+            if (!_testResultsByTestCaseId.TryGetValue(id, out var testResult))
+                throw new ArgumentException($"No {nameof(TestResult)} exists with the given {nameof(TestResult.TestCase)}.{nameof(TestCase.Id)} value", nameof(id));
 
-            return testCase;
+            return testResult;
         }
 
-        public bool TryGetTestCase(Guid id, out TestCase testCase)
+        public bool TryGetTestResult(Guid id, out TestResult testResult)
         {
-            return _testCasesById.TryGetValue(id, out testCase);
+            return _testResultsByTestCaseId.TryGetValue(id, out testResult);
         }
 
         public async Task AddSourceAssemblyPathAsync(string sourceAssemblyPath)
@@ -138,34 +138,34 @@ namespace BetterTestExplorer.Managers
 
             _sourceAssemblyPaths.Remove(sourceAssemblyPath);
 
-            var removedTestCases = new List<TestCase>(_testCasesById.Count);
-            foreach (var testCase in _testCasesById.Values)
-                if (testCase.Source == sourceAssemblyPath)
-                    removedTestCases.Add(testCase);
+            var removedTestResults = new List<TestResult>(_testResultsByTestCaseId.Count);
+            foreach (var testResult in _testResultsByTestCaseId.Values)
+                if (testResult.Source == sourceAssemblyPath)
+                    removedTestResults.Add(testResult);
 
-            foreach (var test in removedTestCases)
-                _testCasesById.Remove(test.Id);
+            foreach (var test in removedTestResults)
+                _testResultsByTestCaseId.Remove(test.Id);
 
-            if(removedTestCases.Count > 0)
-                RaiseTestCasesRemoved(removedTestCases);
+            if(removedTestResults.Count > 0)
+                RaiseTestCasesRemoved(removedTestResults);
         }
 
-        public event EventHandler<TestCasesEventArgs> TestCasesAdded;
-        private void RaiseTestCasesAdded(IEnumerable<TestCase> testCases)
+        public event EventHandler<TestResultsEventArgs> TestResultsAdded;
+        private void RaiseTestCasesAdded(IEnumerable<TestResult> testCases)
         {
-            TestCasesAdded?.Invoke(this, new TestCasesEventArgs(testCases));
+            TestResultsAdded?.Invoke(this, new TestResultsEventArgs(testCases));
         }
 
-        public event EventHandler<TestCasesEventArgs> TestCasesModified;
-        private void RaiseTestCasesModified(IEnumerable<TestCase> testCases)
+        public event EventHandler<TestResultsEventArgs> TestResultsModified;
+        private void RaiseTestCasesModified(IEnumerable<TestResult> testResults)
         {
-            TestCasesModified?.Invoke(this, new TestCasesEventArgs(testCases));
+            TestResultsModified?.Invoke(this, new TestResultsEventArgs(testResults));
         }
 
-        public event EventHandler<TestCasesEventArgs> TestCasesRemoved;
-        private void RaiseTestCasesRemoved(IEnumerable<TestCase> testCases)
+        public event EventHandler<TestResultsEventArgs> TestResultsRemoved;
+        private void RaiseTestCasesRemoved(IEnumerable<TestResult> testResults)
         {
-            TestCasesRemoved?.Invoke(this, new TestCasesEventArgs(testCases));
+            TestResultsRemoved?.Invoke(this, new TestResultsEventArgs(testResults));
         }
 
         #endregion ITestCaseManager
@@ -179,29 +179,35 @@ namespace BetterTestExplorer.Managers
                 throw new ArgumentNullException(nameof(e));
 
             var discoveredTestCasesCount = e.DiscoveredTestCases.Count();
-            var addedTestCases = new List<TestCase>(discoveredTestCasesCount);
-            var modifiedTestCases = new List<TestCase>(discoveredTestCasesCount);
+            var addedTestResults = new List<TestResult>(discoveredTestCasesCount);
+            var modifiedTestResults = new List<TestResult>(discoveredTestCasesCount);
 
             foreach (var testCase in e.DiscoveredTestCases)
             {
-                if (_testCasesById.ContainsKey(testCase.Id))
+                if (_testResultsByTestCaseId.ContainsKey(testCase.Id))
                 {
-                    _testCasesById[testCase.Id] = testCase;
-                    modifiedTestCases.Add(testCase);
+                    var oldTestResult = _testResultsByTestCaseId[testCase.Id];
+                    var testResult = new TestResult(testCase);
+                    testResult.Duration = oldTestResult.Duration;
+                    testResult.Outcome = oldTestResult.Outcome;
+                    testResult.
+                    _testResultsByTestCaseId[testCase.Id] = testResult;
+                    modifiedTestResults.Add(testResult);
                 }
                 else
                 {
-                    _testCasesById.Add(testCase.Id, testCase);
-                    addedTestCases.Add(testCase);
+                    var testResult = new TestResult(testCase);
+                    _testResultsByTestCaseId.Add(testCase.Id, testResult);
+                    addedTestResults.Add(testResult);
                 }
 
                 _discoverySessionTestCaseIds.Add(testCase.Id);
             }
 
-            if(addedTestCases.Count > 0)
-                RaiseTestCasesAdded(addedTestCases);
-            if(modifiedTestCases.Count > 0)
-                RaiseTestCasesModified(modifiedTestCases);
+            if(addedTestResults.Count > 0)
+                RaiseTestCasesAdded(addedTestResults);
+            if(modifiedTestResults.Count > 0)
+                RaiseTestCasesModified(modifiedTestResults);
         }
 
         private void OnDiscoveryComplete(object sender, DiscoveryCompletedEventArgs e)
@@ -211,14 +217,14 @@ namespace BetterTestExplorer.Managers
 
             if (!e.WasDiscoveryAborted)
             {
-                var removedTestCases = new List<TestCase>(_testCasesById.Count - _discoverySessionTestCaseIds.Count);
-                foreach (var testCase in _testCasesById.Where(x => e.SourceAssemblyPaths.Contains(x.Value.Source))
-                                                       .Where(x => _discoverySessionTestCaseIds.Contains(x.Value.Id))
+                var removedTestCases = new List<TestCase>(_testResultsByTestCaseId.Count - _discoverySessionTestCaseIds.Count);
+                foreach (var testCase in _testResultsByTestCaseId.Where(x => e.SourceAssemblyPaths.Contains(x.Value.Source))
+                                                       .Where(x => !_discoverySessionTestCaseIds.Contains(x.Value.Id))
                                                        .Select(x => x.Value))
                     removedTestCases.Add(testCase);
 
                 foreach (var testCase in removedTestCases)
-                    _testCasesById.Remove(testCase.Id);
+                    _testResultsByTestCaseId.Remove(testCase.Id);
 
                 if(removedTestCases.Count > 0)
                     RaiseTestCasesRemoved(removedTestCases);
@@ -236,7 +242,7 @@ namespace BetterTestExplorer.Managers
 
         private readonly ITestCaseDiscoveryManager _discoveryManager;
 
-        private readonly Dictionary<Guid, TestCase> _testCasesById = new Dictionary<Guid, TestCase>();
+        private readonly Dictionary<Guid, TestCase> _testResultsByTestCaseId = new Dictionary<Guid, TestCase>();
 
         private readonly HashSet<Guid> _discoverySessionTestCaseIds = new HashSet<Guid>();
 

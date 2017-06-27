@@ -5,29 +5,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using BetterTestExplorer.TestPlatform;
 
 namespace BetterTestExplorer.Common
 {
-    internal class TestCasesEventArgs : EventArgs
+    public class TestCasesEventArgs
     {
         /**********************************************************************/
         #region Constructors
 
         public TestCasesEventArgs()
         {
-            _testCasesById = new Dictionary<Guid, TestCase>();
+            _TestCasesById = new Dictionary<Guid, ITestCase>();
+            _TestCasesById_readOnly = new ReadOnlyDictionary<Guid, ITestCase>(_TestCasesById);
         }
 
-        public TestCasesEventArgs(IEnumerable<TestCase> testCases)
+        public TestCasesEventArgs(IEnumerable<ITestCase> testCases)
         {
             if (testCases == null)
                 throw new ArgumentNullException(nameof(testCases));
 
             var testCasesCount = testCases.Count();
-            _testCasesById = new Dictionary<Guid, TestCase>(testCasesCount);
-            foreach(var testCase in testCases)
-                _testCasesById.Add(testCase.Id, testCase);
+            _TestCasesById = new Dictionary<Guid, ITestCase>(testCasesCount);
+            foreach (var testCase in testCases)
+                _TestCasesById.Add(testCase.Id, testCase);
+            _TestCasesById_readOnly = new ReadOnlyDictionary<Guid, ITestCase>(_TestCasesById);
         }
 
         #endregion Constructors
@@ -35,8 +37,9 @@ namespace BetterTestExplorer.Common
         /**********************************************************************/
         #region Properties
 
-        public IReadOnlyDictionary<Guid, TestCase> TestCasesById => _testCasesById;
-        private readonly Dictionary<Guid, TestCase> _testCasesById;
+        public IReadOnlyDictionary<Guid, ITestCase> TestCasesById => _TestCasesById_readOnly;
+        private readonly ReadOnlyDictionary<Guid, ITestCase> _TestCasesById_readOnly;
+        private readonly Dictionary<Guid, ITestCase> _TestCasesById;
 
         #endregion Properties
     }

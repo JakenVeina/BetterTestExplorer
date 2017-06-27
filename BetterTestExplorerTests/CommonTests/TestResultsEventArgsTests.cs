@@ -13,7 +13,7 @@ using BetterTestExplorer.TestPlatform;
 namespace BetterTestExplorerTests.CommonTests
 {
     [TestFixture]
-    public class TestCasesEventArgsTests
+    public class TestResultsEventArgsTests
     {
         /**********************************************************************/
         #region Test Procedures
@@ -26,6 +26,14 @@ namespace BetterTestExplorerTests.CommonTests
             return testCase;
         }
 
+        private ITestResult MakeFakeTestResult(ITestCase testCase)
+        {
+            var testResult = Substitute.For<ITestResult>();
+            testResult.TestCase.Returns(testCase);
+
+            return testResult;
+        }
+
         #endregion Test Procedures
 
         /**********************************************************************/
@@ -34,9 +42,9 @@ namespace BetterTestExplorerTests.CommonTests
         [Test]
         public void Constructor_Default_Always_SetsTestResultsByTestCaseIdToEmpty()
         {
-            var uut = new TestCasesEventArgs();
+            var uut = new TestResultsEventArgs();
 
-            var result = uut.TestCasesById;
+            var result = uut.TestResultsByTestCaseId;
 
             CollectionAssert.IsEmpty(result);
         }
@@ -44,47 +52,49 @@ namespace BetterTestExplorerTests.CommonTests
         #endregion Constructor() Tests
 
         /**********************************************************************/
-        #region Constructor(testCases) Tests
+        #region Constructor(testResults) Tests
 
         [Test]
-        public void Constructor_TestCases_TestCasesIsNull_ThrowsException()
+        public void Constructor_TestResults_TestResultsIsNull_ThrowsException()
         {
-            var testCases = (IEnumerable<ITestCase>)null;
+            var testResults = (IEnumerable<ITestResult>)null;
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestCasesEventArgs(testCases));
+            var result = Assert.Throws<ArgumentNullException>(() => new TestResultsEventArgs(testResults));
 
-            Assert.AreEqual("testCases", result.ParamName);
+            Assert.AreEqual("testResults", result.ParamName);
         }
 
         [TestCase(3)]
-        public void Constructor_TestCases_Otherwise_TestCasesByIdValuesIsEquivalentToTestCases(int testCaseCount)
+        public void Constructor_TestResults_Otherwise_TestResultsByTestCaseIdValuesIsEquivalentToTestResults(int testCaseCount)
         {
             var testResults = Enumerable.Range(1, testCaseCount)
                                         .Select(x => MakeFakeTestCase())
+                                        .Select(x => MakeFakeTestResult(x))
                                         .ToArray();
 
-            var uut = new TestCasesEventArgs(testResults);
+            var uut = new TestResultsEventArgs(testResults);
 
-            var result = uut.TestCasesById.Values;
+            var result = uut.TestResultsByTestCaseId.Values;
 
             CollectionAssert.AreEquivalent(testResults, result);
         }
 
         [TestCase(3)]
-        public void Constructor_TestCases_Otherwise_TestCasesByIdEachKeyIsEqualToValueId(int testCaseCount)
+        public void Constructor_TestResults_Otherwise_TestResultsByTestCaseIdEachKeyIsEqualToValueTestCaseId(int testCaseCount)
         {
             var testResults = Enumerable.Range(1, testCaseCount)
                                         .Select(x => MakeFakeTestCase())
+                                        .Select(x => MakeFakeTestResult(x))
                                         .ToArray();
 
-            var uut = new TestCasesEventArgs(testResults);
+            var uut = new TestResultsEventArgs(testResults);
 
-            var result = uut.TestCasesById;
+            var result = uut.TestResultsByTestCaseId;
 
-            foreach (var testCasePair in result)
-                Assert.AreEqual(testCasePair.Key, testCasePair.Value.Id);
+            foreach (var testResultPair in result)
+                Assert.AreEqual(testResultPair.Key, testResultPair.Value.TestCase.Id);
         }
 
-        #endregion Constructor(testCases) Tests
+        #endregion Constructor(testResults) Tests
     }
 }
