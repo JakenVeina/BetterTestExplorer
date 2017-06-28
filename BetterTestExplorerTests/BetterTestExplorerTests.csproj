@@ -95,6 +95,9 @@
     <Compile Include="CommonTests\TestCasesEventArgsTests.cs" />
     <Compile Include="CommonTests\TestResultsEventArgsTests.cs" />
     <Compile Include="TestPlatformTests\FakeTestObjectFactory.cs" />
+    <Compile Include="TestPlatformTests\TestCaseTests.cs" />
+    <Compile Include="TestPlatformTests\TestObjectTests.cs" />
+    <Compile Include="TestPlatformTests\TestResultTests.cs" />
     <None Include="SandboxTests.cs" />
     <Compile Include="ManagersTests\TestCaseDiscoveryManagerTests.cs" />
     <None Include="ManagersTests\TestResultManagerTests.cs" />

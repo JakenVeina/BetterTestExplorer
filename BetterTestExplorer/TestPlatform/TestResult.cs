@@ -44,9 +44,12 @@ namespace BetterTestExplorer.TestPlatform
         /**********************************************************************/
         #region Constructors
 
-        internal TestResult(VsTestPlatform.TestResult vsTestResult) : base(vsTestResult)
+        internal TestResult(ITestObjectFactory testObjectFactory, VsTestPlatform.TestResult vsTestResult) : base(vsTestResult ?? throw new ArgumentNullException(nameof(vsTestResult)))
         {
-            TestCase = new TestCase(vsTestResult.TestCase);
+            if (testObjectFactory == null)
+                throw new ArgumentNullException(nameof(testObjectFactory));
+
+            TestCase = testObjectFactory.TranslateTestCase(vsTestResult.TestCase);
             Attachments = vsTestResult.Attachments;
             Outcome = vsTestResult.Outcome;
             ErrorMessage = vsTestResult.ErrorMessage;

@@ -29,7 +29,7 @@ namespace BetterTestExplorer.TestPlatform
             => new TestCase(vsTestCase);
 
         public ITestResult TranslateTestResult(VsTestPlatform.TestResult vsTestResult)
-            => new TestResult(vsTestResult);
+            => new TestResult(this, vsTestResult);
 
         #endregion ITestPlatformFactory
     }

@@ -14,9 +14,9 @@ namespace BetterTestExplorer.TestPlatform
 
         string DisplayName { get; }
 
-        string Class { get; }
+        string ClassName { get; }
 
-        string Namespace { get; }
+        string NamespaceName { get; }
 
         string SourceAssemblyPath { get; }
 
@@ -32,7 +32,7 @@ namespace BetterTestExplorer.TestPlatform
         /**********************************************************************/
         #region Constructors
 
-        internal TestCase(VsTestPlatform.ObjectModel.TestCase vsTestCase) : base(vsTestCase)
+        internal TestCase(VsTestPlatform.ObjectModel.TestCase vsTestCase) : base(vsTestCase ?? throw new ArgumentNullException(nameof(vsTestCase)))
         {
             Id = vsTestCase.Id;
             DisplayName = vsTestCase.DisplayName;
@@ -42,11 +42,11 @@ namespace BetterTestExplorer.TestPlatform
             ExecutorUri = vsTestCase.ExecutorUri;
 
             var methodNameIndex = vsTestCase.FullyQualifiedName.LastIndexOf(vsTestCase.DisplayName);
-            var namespaceAndClass = vsTestCase.FullyQualifiedName.Substring(0, methodNameIndex + 1);
+            var namespaceAndClass = vsTestCase.FullyQualifiedName.Substring(0, methodNameIndex - 1);
             var classSeparatorIndex = namespaceAndClass.LastIndexOf('.');
 
-            Class = namespaceAndClass.Substring(classSeparatorIndex + 1);
-            Namespace = namespaceAndClass.Substring(0, classSeparatorIndex + 1);
+            ClassName = namespaceAndClass.Substring(classSeparatorIndex + 1);
+            NamespaceName = namespaceAndClass.Substring(0, classSeparatorIndex);
         }
 
         #endregion Constructors
@@ -58,9 +58,9 @@ namespace BetterTestExplorer.TestPlatform
 
         public string DisplayName { get; }
 
-        public string Class { get; }
+        public string ClassName { get; }
 
-        public string Namespace { get; }
+        public string NamespaceName { get; }
 
         public string SourceAssemblyPath { get; }
 

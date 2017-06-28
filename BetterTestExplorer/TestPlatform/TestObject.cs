@@ -23,9 +23,12 @@ namespace BetterTestExplorer.TestPlatform
         /**********************************************************************/
         #region Constructors
 
-        protected internal TestObject(VsTestPlatform.TestObject testObject)
+        protected internal TestObject(VsTestPlatform.TestObject vsTestObject)
         {
-            Traits = testObject.Traits;
+            if (vsTestObject == null)
+                throw new ArgumentNullException(nameof(vsTestObject));
+
+            Traits = vsTestObject.Traits;
         }
 
         #endregion Constructors
