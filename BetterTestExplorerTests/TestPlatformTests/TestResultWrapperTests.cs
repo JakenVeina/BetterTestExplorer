@@ -53,10 +53,10 @@ namespace BetterTestExplorerTests.TestPlatformTests
         #endregion Test Procedures
 
         /**********************************************************************/
-        #region Constructor Tests
+        #region Constructor(testObjectFactory, testResult) Tests
 
         [Test]
-        public void Constructor_TestObjectFactoryIsNull_ThrowsException()
+        public void Constructor_TestObjectFactoryTestResult_TestObjectFactoryIsNull_ThrowsException()
         {
             var testObjectFactory = (ITestObjectFactory)null;
             var testResult = MakeTestResult();
@@ -67,7 +67,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_TestResultIsNull_ThrowsException()
+        public void Constructor_TestObjectFactoryTestResult_TestResultIsNull_ThrowsException()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = (TestResult)null;
@@ -78,7 +78,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_InvokesTestObjectFactoryTranslateTestCaseWithTestResultTestCase()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_InvokesTestObjectFactoryTranslateTestCaseWithTestResultTestCase()
         {
             var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
             var testResult = MakeTestResult();
@@ -89,7 +89,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsTestCaseToTestObjectFactoryTranslateTestCase()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsTestCaseToTestObjectFactoryTranslateTestCase()
         {
             var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
             var testResult = MakeTestResult();
@@ -104,7 +104,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsDisplayNameToTestResultDisplayName()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsDisplayNameToTestResultDisplayName()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -117,7 +117,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsComputerNameToTestResultComputerName()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsComputerNameToTestResultComputerName()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -130,7 +130,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsOutcomeToTestResultOutcome()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsOutcomeToTestResultOutcome()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -143,7 +143,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsStartTimeToTestResultStartTime()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsStartTimeToTestResultStartTime()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -156,7 +156,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsEndTimeToTestResultEndTime()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsEndTimeToTestResultEndTime()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -169,7 +169,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsDurationToTestResultDuration()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsDurationToTestResultDuration()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -182,7 +182,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsMessagesToTestResultMessages()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsMessagesToTestResultMessages()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -191,11 +191,11 @@ namespace BetterTestExplorerTests.TestPlatformTests
 
             var result = uut.Messages;
 
-            Assert.AreEqual(testResult.Messages, result);
+            CollectionAssert.AreEquivalent(testResult.Messages, result);
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsErrorMessageToTestResultErrorMessage()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsErrorMessageToTestResultErrorMessage()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -208,7 +208,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsErrorStackTraceToTestResultErrorStackTrace()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsErrorStackTraceToTestResultErrorStackTrace()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -221,7 +221,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsAttachmentsToTestResultAttachments()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsAttachmentsToTestResultAttachments()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -230,11 +230,11 @@ namespace BetterTestExplorerTests.TestPlatformTests
 
             var result = uut.Attachments;
 
-            Assert.AreEqual(testResult.Attachments, result);
+            CollectionAssert.AreEquivalent(testResult.Attachments, result);
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsTraitsToTestResultTraits()
+        public void Constructor_TestObjectFactoryTestResult_Otherwise_SetsTraitsToTestResultTraits()
         {
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
@@ -243,9 +243,216 @@ namespace BetterTestExplorerTests.TestPlatformTests
 
             var result = uut.Traits;
 
-            Assert.AreSame(testResult.Traits, result);
+            CollectionAssert.AreEquivalent(testResult.Traits, result);
         }
 
-        #endregion Constructor Tests
+        #endregion Constructor(testObjectFactory, testResult) Tests
+
+        /**********************************************************************/
+        #region Constructor(testObjectFactory, testCase) Tests
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_TestObjectFactoryIsNull_ThrowsException()
+        {
+            var testObjectFactory = (ITestObjectFactory)null;
+            var testCase = MakeTestCase();
+
+            var result = Assert.Throws<ArgumentNullException>(() => new ReadOnlyTestResult(testObjectFactory, testCase));
+
+            Assert.AreEqual("testObjectFactory", result.ParamName);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_TestCaseIsNull_ThrowsException()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = (TestCase)null;
+
+            var result = Assert.Throws<ArgumentNullException>(() => new ReadOnlyTestResult(testObjectFactory, testCase));
+
+            Assert.AreEqual("testCase", result.ParamName);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_InvokesTestObjectFactoryTranslateTestCaseWithTestCase()
+        {
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
+            var testCase = MakeTestCase();
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            testObjectFactory.Received(1).TranslateTestCase(testCase);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsTestCaseToTestObjectFactoryTranslateTestCase()
+        {
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
+            var testCase = MakeTestCase();
+            var translatedTestCase = FakeTestObjectFactory.Default.TranslateTestCase(testCase);
+            testObjectFactory.TranslateTestCase(Arg.Any<TestCase>()).Returns(translatedTestCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.TestCase;
+
+            Assert.AreSame(translatedTestCase, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsDisplayNameToNewTestResultDisplayName()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.DisplayName;
+
+            Assert.AreEqual(testResult.DisplayName, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsComputerNameToNewTestResultComputerName()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.ComputerName;
+
+            Assert.AreEqual(testResult.ComputerName, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsOutcomeToNewTestResultOutcome()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.Outcome;
+
+            Assert.AreEqual(testResult.Outcome, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsStartTimeToNewTestResultStartTime()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.StartTime;
+
+            Assert.AreEqual(testResult.StartTime, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsEndTimeToNewTestResultEndTime()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.EndTime;
+
+            Assert.AreEqual(testResult.EndTime, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsDurationToNewTestResultDuration()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.Duration;
+
+            Assert.AreEqual(testResult.Duration, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsMessagesToNewTestResultMessages()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.Messages;
+
+            CollectionAssert.AreEquivalent(testResult.Messages, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsErrorMessageToNewTestResultErrorMessage()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.ErrorMessage;
+
+            Assert.AreEqual(testResult.ErrorMessage, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsErrorStackTraceToNewTestResultErrorStackTrace()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.ErrorStackTrace;
+
+            Assert.AreEqual(testResult.ErrorStackTrace, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsAttachmentsToNewTestResultAttachments()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.Attachments;
+
+            CollectionAssert.AreEquivalent(testResult.Attachments, result);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryTestCase_Otherwise_SetsTraitsToNewTestResultTraits()
+        {
+            var testObjectFactory = FakeTestObjectFactory.Default;
+            var testCase = MakeTestCase();
+            var testResult = new TestResult(testCase);
+
+            var uut = new ReadOnlyTestResult(testObjectFactory, testCase);
+
+            var result = uut.Traits;
+
+            CollectionAssert.AreEquivalent(testResult.Traits, result);
+        }
+
+        #endregion Constructor(testObjectFactory, testCase) Tests
     }
 }

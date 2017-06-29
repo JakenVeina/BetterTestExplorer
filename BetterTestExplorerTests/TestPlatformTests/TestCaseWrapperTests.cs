@@ -142,7 +142,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
 
             var result = uut.Traits;
 
-            Assert.AreSame(testCase.Traits, result);
+            CollectionAssert.AreEquivalent(testCase.Traits, result);
         }
 
         #endregion Constructor Tests
