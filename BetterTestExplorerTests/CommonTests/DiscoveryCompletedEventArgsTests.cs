@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using BetterTestExplorer.TestPlatform;
+using BetterTestExplorer.Common;
 
-namespace BetterTestExplorerTests.TestPlatformTests
+namespace BetterTestExplorerTests.CommonTests
 {
     [TestFixture]
     public class DiscoveryCompletedEventArgsTests

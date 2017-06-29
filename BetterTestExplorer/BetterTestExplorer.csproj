@@ -60,9 +60,9 @@
       <DependentUpon>BetterTestExplorerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="BetterTestExplorerPackage.cs" />
-    <Compile Include="TestPlatform\DiscoveryCompletedEventArgs.cs" />
-    <Compile Include="TestPlatform\TestCasesEventArgs.cs" />
-    <Compile Include="TestPlatform\TestResultsEventArgs.cs" />
+    <Compile Include="Common\DiscoveryCompletedEventArgs.cs" />
+    <Compile Include="Common\TestCasesEventArgs.cs" />
+    <Compile Include="Common\TestResultsEventArgs.cs" />
     <Compile Include="Common\TestGrouping.cs" />
     <Compile Include="TestPlatform\TestObjectWrapper.cs" />
     <Compile Include="TestPlatform\TestObjectFactory.cs" />
