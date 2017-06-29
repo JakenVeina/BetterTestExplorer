@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
-namespace BetterTestExplorer.Common
+namespace BetterTestExplorer.TestPlatform
 {
     internal class DiscoveryCompletedEventArgs : EventArgs
     {

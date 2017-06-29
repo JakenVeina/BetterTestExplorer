@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using BetterTestExplorer.TestPlatform;
 
-namespace BetterTestExplorer.Common
+namespace BetterTestExplorer.TestPlatform
 {
     public class TestCasesEventArgs
     {

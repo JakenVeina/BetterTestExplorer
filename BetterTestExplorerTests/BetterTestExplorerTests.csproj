@@ -91,9 +91,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonTests\DiscoveryCompletedEventArgsTests.cs" />
-    <Compile Include="CommonTests\TestCasesEventArgsTests.cs" />
-    <Compile Include="CommonTests\TestResultsEventArgsTests.cs" />
+    <Compile Include="TestPlatformTests\DiscoveryCompletedEventArgsTests.cs" />
+    <Compile Include="TestPlatformTests\TestCasesEventArgsTests.cs" />
+    <Compile Include="TestPlatformTests\TestResultsEventArgsTests.cs" />
     <Compile Include="TestPlatformTests\FakeTestObjectFactory.cs" />
     <Compile Include="TestPlatformTests\TestCaseWrapperTests.cs" />
     <Compile Include="TestPlatformTests\TestResultWrapperTests.cs" />
@@ -115,6 +115,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="TestingUtilities.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CommonTests\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
