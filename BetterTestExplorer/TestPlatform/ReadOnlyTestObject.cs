@@ -13,25 +13,18 @@ namespace BetterTestExplorer.TestPlatform
         /**********************************************************************/
         #region Properties
 
-        TraitCollection Traits { get; }
+        IReadOnlyCollection<Trait> Traits { get; }
 
         #endregion Properties
     }
 
-    public abstract class TestObjectWrapper : ITestObject
+    public abstract class ReadOnlyTestObject : ITestObject
     {
         /**********************************************************************/
         #region ITestObject
 
-        public TraitCollection Traits => TestObject.Traits;
+        public abstract IReadOnlyCollection<Trait> Traits { get; }
 
         #endregion ITestObject
-
-        /**********************************************************************/
-        #region Protected Properties
-
-        protected abstract TestObject TestObject { get; }
-
-        #endregion Protected Properties
     }
 }

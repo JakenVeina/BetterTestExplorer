@@ -19,19 +19,49 @@ namespace BetterTestExplorerTests.TestPlatformTests
 
         public virtual ITestCase TranslateTestCase(TestCase testCase)
         {
-            var testCaseInterface = Substitute.For<ITestCase>();
-            testCaseInterface.Id.Returns(Guid.NewGuid());
+            var newTestCase = Substitute.For<ITestCase>();
+            newTestCase.Id.Returns(Guid.NewGuid());
 
-            return testCaseInterface;
+            return newTestCase;
         }
 
         public virtual ITestResult TranslateTestResult(TestResult testResult)
         {
-            var testResultInterface = Substitute.For<ITestResult>();
-            var testCaseInterface = TranslateTestCase(testResult.TestCase);
-            testResultInterface.TestCase.Returns(testCaseInterface);
+            var newTestResult = Substitute.For<ITestResult>();
+            var testCase = TranslateTestCase(testResult.TestCase);
+            newTestResult.TestCase.Returns(testCase);
 
-            return testResultInterface;
+            return newTestResult;
+        }
+
+        public virtual ITestResult CreateDefaultTestResult(TestCase testCase)
+        {
+            var testResult = Substitute.For<ITestResult>();
+            var newTestCase = TranslateTestCase(testCase);
+            testResult.TestCase.Returns(newTestCase);
+
+            return testResult;
+        }
+
+        public virtual ITestResult CloneTestResult(ITestResult testResult, TestCase testCase)
+        {
+            var newTestResult = Substitute.For<ITestResult>();
+            var newTestCase = TranslateTestCase(testCase);
+            newTestResult.TestCase.Returns(newTestCase);
+
+            newTestResult.DisplayName.Returns(testResult.DisplayName);
+            newTestResult.ComputerName.Returns(testResult.ComputerName);
+            newTestResult.Outcome.Returns(testResult.Outcome);
+            newTestResult.StartTime.Returns(testResult.StartTime);
+            newTestResult.EndTime.Returns(testResult.EndTime);
+            newTestResult.Duration.Returns(testResult.Duration);
+            newTestResult.Messages.Returns(testResult.Messages);
+            newTestResult.ErrorMessage.Returns(testResult.ErrorMessage);
+            newTestResult.ErrorStackTrace.Returns(testResult.ErrorStackTrace);
+            newTestResult.Attachments.Returns(testResult.Attachments);
+            newTestResult.Traits.Returns(testResult.Traits);
+
+            return newTestResult;
         }
     }
 }

@@ -16,8 +16,9 @@ namespace BetterTestExplorer.Common
 
         public TestCasesEventArgs()
         {
-            _TestCasesById = new Dictionary<Guid, ITestCase>();
-            _TestCasesById_readOnly = new ReadOnlyDictionary<Guid, ITestCase>(_TestCasesById);
+            _testCasesById = new Dictionary<Guid, ITestCase>();
+
+            TestCasesById = new ReadOnlyDictionary<Guid, ITestCase>(_testCasesById);
         }
 
         public TestCasesEventArgs(IEnumerable<ITestCase> testCases)
@@ -26,10 +27,11 @@ namespace BetterTestExplorer.Common
                 throw new ArgumentNullException(nameof(testCases));
 
             var testCasesCount = testCases.Count();
-            _TestCasesById = new Dictionary<Guid, ITestCase>(testCasesCount);
+            _testCasesById = new Dictionary<Guid, ITestCase>(testCasesCount);
             foreach (var testCase in testCases)
-                _TestCasesById.Add(testCase.Id, testCase);
-            _TestCasesById_readOnly = new ReadOnlyDictionary<Guid, ITestCase>(_TestCasesById);
+                _testCasesById.Add(testCase.Id, testCase);
+
+            TestCasesById = new ReadOnlyDictionary<Guid, ITestCase>(_testCasesById);
         }
 
         #endregion Constructors
@@ -37,9 +39,8 @@ namespace BetterTestExplorer.Common
         /**********************************************************************/
         #region Properties
 
-        public IReadOnlyDictionary<Guid, ITestCase> TestCasesById => _TestCasesById_readOnly;
-        private readonly ReadOnlyDictionary<Guid, ITestCase> _TestCasesById_readOnly;
-        private readonly Dictionary<Guid, ITestCase> _TestCasesById;
+        public IReadOnlyDictionary<Guid, ITestCase> TestCasesById { get; }
+        private readonly Dictionary<Guid, ITestCase> _testCasesById;
 
         #endregion Properties
     }

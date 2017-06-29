@@ -44,7 +44,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = (TestCase)null;
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestCaseWrapper(testCase));
+            var result = Assert.Throws<ArgumentNullException>(() => new ReadOnlyTestCase(testCase));
 
             Assert.AreEqual("testCase", result.ParamName);
         }
@@ -54,7 +54,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.Id;
 
@@ -66,7 +66,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.DisplayName;
 
@@ -78,7 +78,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.DisplayName;
 
@@ -90,7 +90,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.Source;
 
@@ -102,7 +102,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.CodeFilePath;
 
@@ -114,7 +114,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.LineNumber;
 
@@ -126,7 +126,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.ExecutorUri;
 
@@ -138,7 +138,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
         {
             var testCase = MakeTestCase();
 
-            var uut = new TestCaseWrapper(testCase);
+            var uut = new ReadOnlyTestCase(testCase);
 
             var result = uut.Traits;
 

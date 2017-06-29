@@ -17,6 +17,10 @@ namespace BetterTestExplorer.TestPlatform
 
         ITestResult TranslateTestResult(TestResult testResult);
 
+        ITestResult CreateDefaultTestResult(TestCase testCase);
+
+        ITestResult CloneTestResult(ITestResult testResult, TestCase testCase);
+
         #endregion Methods
     }
 
@@ -26,10 +30,16 @@ namespace BetterTestExplorer.TestPlatform
         #region ITestPlatformFactory
 
         public ITestCase TranslateTestCase(TestCase testCase)
-            => new TestCaseWrapper(testCase);
+            => new ReadOnlyTestCase(testCase);
 
         public ITestResult TranslateTestResult(TestResult testResult)
-            => new TestResultWrapper(this, testResult);
+            => new ReadOnlyTestResult(this, testResult);
+
+        public ITestResult CreateDefaultTestResult(TestCase testCase)
+            => new ReadOnlyTestResult(this, testCase);
+
+        public ITestResult CloneTestResult(ITestResult testResult, TestCase testCase)
+            => new ReadOnlyTestResult(this, testResult, testCase);
 
         #endregion ITestPlatformFactory
     }

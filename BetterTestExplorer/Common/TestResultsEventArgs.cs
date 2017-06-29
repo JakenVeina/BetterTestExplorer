@@ -17,7 +17,8 @@ namespace BetterTestExplorer.Common
         public TestResultsEventArgs()
         {
             _testResultsByTestCaseId = new Dictionary<Guid, ITestResult>();
-            _testResultsByTestCaseId_readOnly = new ReadOnlyDictionary<Guid, ITestResult>(_testResultsByTestCaseId);
+
+            TestResultsByTestCaseId = new ReadOnlyDictionary<Guid, ITestResult>(_testResultsByTestCaseId);
         }
 
         public TestResultsEventArgs(IEnumerable<ITestResult> testResults)
@@ -29,7 +30,8 @@ namespace BetterTestExplorer.Common
             _testResultsByTestCaseId = new Dictionary<Guid, ITestResult>(testResultsCount);
             foreach(var testResult in testResults)
                 _testResultsByTestCaseId.Add(testResult.TestCase.Id, testResult);
-            _testResultsByTestCaseId_readOnly = new ReadOnlyDictionary<Guid, ITestResult>(_testResultsByTestCaseId);
+
+            TestResultsByTestCaseId = new ReadOnlyDictionary<Guid, ITestResult>(_testResultsByTestCaseId);
         }
 
         #endregion Constructors
@@ -37,8 +39,7 @@ namespace BetterTestExplorer.Common
         /**********************************************************************/
         #region Properties
 
-        public IReadOnlyDictionary<Guid, ITestResult> TestResultsByTestCaseId => _testResultsByTestCaseId_readOnly;
-        private readonly ReadOnlyDictionary<Guid, ITestResult> _testResultsByTestCaseId_readOnly;
+        public IReadOnlyDictionary<Guid, ITestResult> TestResultsByTestCaseId { get; }
         private readonly Dictionary<Guid, ITestResult> _testResultsByTestCaseId;
 
         #endregion Properties

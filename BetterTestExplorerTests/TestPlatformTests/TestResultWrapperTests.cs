@@ -61,7 +61,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = (ITestObjectFactory)null;
             var testResult = MakeTestResult();
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestResultWrapper(testObjectFactory, testResult));
+            var result = Assert.Throws<ArgumentNullException>(() => new ReadOnlyTestResult(testObjectFactory, testResult));
 
             Assert.AreEqual("testObjectFactory", result.ParamName);
         }
@@ -72,7 +72,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = (TestResult)null;
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestResultWrapper(testObjectFactory, testResult));
+            var result = Assert.Throws<ArgumentNullException>(() => new ReadOnlyTestResult(testObjectFactory, testResult));
 
             Assert.AreEqual("testResult", result.ParamName);
         }
@@ -83,7 +83,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             testObjectFactory.Received(1).TranslateTestCase(testResult.TestCase);
         }
@@ -96,7 +96,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testCase = FakeTestObjectFactory.Default.TranslateTestCase(testResult.TestCase);
             testObjectFactory.TranslateTestCase(Arg.Any<TestCase>()).Returns(testCase);
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.TestCase;
 
@@ -109,7 +109,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.DisplayName;
 
@@ -122,7 +122,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.ComputerName;
 
@@ -135,7 +135,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.Outcome;
 
@@ -148,7 +148,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.StartTime;
 
@@ -161,7 +161,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.EndTime;
 
@@ -174,7 +174,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.Duration;
 
@@ -187,7 +187,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.Messages;
 
@@ -200,7 +200,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.ErrorMessage;
 
@@ -213,7 +213,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.ErrorStackTrace;
 
@@ -226,7 +226,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.Attachments;
 
@@ -239,7 +239,7 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var testObjectFactory = FakeTestObjectFactory.Default;
             var testResult = MakeTestResult();
 
-            var uut = new TestResultWrapper(testObjectFactory, testResult);
+            var uut = new ReadOnlyTestResult(testObjectFactory, testResult);
 
             var result = uut.Traits;
 
