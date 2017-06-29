@@ -64,13 +64,13 @@
     <Compile Include="Common\TestCasesEventArgs.cs" />
     <Compile Include="Common\TestResultsEventArgs.cs" />
     <Compile Include="Common\TestGrouping.cs" />
-    <Compile Include="TestPlatform\TestObject.cs" />
+    <Compile Include="TestPlatform\TestObjectWrapper.cs" />
     <Compile Include="TestPlatform\TestObjectFactory.cs" />
-    <Compile Include="TestPlatform\TestResult.cs" />
+    <Compile Include="TestPlatform\TestResultWrapper.cs" />
     <None Include="Managers\TestResultManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Managers\TestCaseDiscoveryManager.cs" />
-    <Compile Include="TestPlatform\TestCase.cs" />
+    <Compile Include="TestPlatform\TestCaseWrapper.cs" />
     <None Include="ViewModels\ExplorerVM.cs" />
     <None Include="ViewModels\TestContainerVM.cs" />
     <None Include="ViewModels\TestPointVM.cs" />

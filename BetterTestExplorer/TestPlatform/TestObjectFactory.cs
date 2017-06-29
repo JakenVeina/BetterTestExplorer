@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using VsTestPlatform = Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace BetterTestExplorer.TestPlatform
 {
@@ -13,9 +13,9 @@ namespace BetterTestExplorer.TestPlatform
         /**********************************************************************/
         #region Methods
 
-        ITestCase TranslateTestCase(VsTestPlatform.TestCase vsTestCase);
+        ITestCase TranslateTestCase(TestCase testCase);
 
-        ITestResult TranslateTestResult(VsTestPlatform.TestResult vsTestResult);
+        ITestResult TranslateTestResult(TestResult testResult);
 
         #endregion Methods
     }
@@ -25,11 +25,11 @@ namespace BetterTestExplorer.TestPlatform
         /**********************************************************************/
         #region ITestPlatformFactory
 
-        public ITestCase TranslateTestCase(VsTestPlatform.TestCase vsTestCase)
-            => new TestCase(vsTestCase);
+        public ITestCase TranslateTestCase(TestCase testCase)
+            => new TestCaseWrapper(testCase);
 
-        public ITestResult TranslateTestResult(VsTestPlatform.TestResult vsTestResult)
-            => new TestResult(this, vsTestResult);
+        public ITestResult TranslateTestResult(TestResult testResult)
+            => new TestResultWrapper(this, testResult);
 
         #endregion ITestPlatformFactory
     }

@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
-using VsTestPlatform = Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
@@ -115,7 +115,7 @@ namespace BetterTestExplorer.Managers
         /**********************************************************************/
         #region ITestDiscoveryEventsHandler
 
-        public void HandleDiscoveredTests(IEnumerable<VsTestPlatform.TestCase> discoveredTestCases)
+        public void HandleDiscoveredTests(IEnumerable<TestCase> discoveredTestCases)
         {
             if (_discoveryCompletionSource.Task.IsCompleted)
             {
@@ -134,7 +134,7 @@ namespace BetterTestExplorer.Managers
             RaiseTestCasesDiscovered(translatedTests);
         }
 
-        public void HandleDiscoveryComplete(long totalTests, IEnumerable<VsTestPlatform.TestCase> lastChunk, bool isAborted)
+        public void HandleDiscoveryComplete(long totalTests, IEnumerable<TestCase> lastChunk, bool isAborted)
         {
             if (_discoveryCompletionSource.Task.IsCompleted)
             {

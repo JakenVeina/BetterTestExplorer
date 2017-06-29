@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using VsTestPlatform = Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 using BetterTestExplorer.TestPlatform;
 
@@ -17,21 +17,21 @@ namespace BetterTestExplorerTests.TestPlatformTests
     {
         public readonly static ITestObjectFactory Default = new FakeTestObjectFactory();
 
-        public virtual ITestCase TranslateTestCase(VsTestPlatform.TestCase vsTestCase)
+        public virtual ITestCase TranslateTestCase(TestCase testCase)
         {
-            var testCase = Substitute.For<ITestCase>();
-            testCase.Id.Returns(Guid.NewGuid());
+            var testCaseInterface = Substitute.For<ITestCase>();
+            testCaseInterface.Id.Returns(Guid.NewGuid());
 
-            return testCase;
+            return testCaseInterface;
         }
 
-        public virtual ITestResult TranslateTestResult(VsTestPlatform.TestResult vsTestResult)
+        public virtual ITestResult TranslateTestResult(TestResult testResult)
         {
-            var testResult = Substitute.For<ITestResult>();
-            var testCase = TranslateTestCase(vsTestResult.TestCase);
-            testResult.TestCase.Returns(testCase);
+            var testResultInterface = Substitute.For<ITestResult>();
+            var testCaseInterface = TranslateTestCase(testResult.TestCase);
+            testResultInterface.TestCase.Returns(testCaseInterface);
 
-            return testResult;
+            return testResultInterface;
         }
     }
 }

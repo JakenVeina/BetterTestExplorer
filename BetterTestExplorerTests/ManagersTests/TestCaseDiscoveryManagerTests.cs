@@ -7,8 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using VsTestPlatform = Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.TestPlatform.VsTestConsole.TranslationLayer.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
@@ -91,7 +91,7 @@ namespace BetterTestExplorerTests.ManagersTests
             vstest.ClearReceivedCalls();
 
             var task = uut.DiscoverTestCasesAsync(Enumerable.Empty<string>());
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
             task.Wait();
 
             vstest.DidNotReceive().DiscoverTests(Arg.Any<IEnumerable<string>>(), Arg.Any<string>(), Arg.Any<ITestDiscoveryEventsHandler>());
@@ -110,7 +110,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             Assert.IsFalse(task.IsCompleted);
 
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
             task.Wait();
 
             Assert.IsTrue(task.IsCompleted);
@@ -196,7 +196,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             Assert.IsFalse(task.IsCompleted);
 
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
             task.Wait();
 
             Assert.IsTrue(task.IsCompleted);
@@ -233,7 +233,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             Assert.IsFalse(task.IsCompleted);
 
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
             task.Wait();
 
             Assert.IsTrue(task.IsCompleted);
@@ -267,7 +267,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
             uut.TestCasesDiscovered += handler;
-            uut.HandleDiscoveredTests(Enumerable.Empty<VsTestPlatform.TestCase>());
+            uut.HandleDiscoveredTests(Enumerable.Empty<TestCase>());
 
             handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>());
         }
@@ -297,10 +297,10 @@ namespace BetterTestExplorerTests.ManagersTests
             var uut = new TestCaseDiscoveryManager(testObjectFactory, vstest);
 
             uut.DiscoverTestCasesAsync(Enumerable.Empty<string>()).Wait();
-            var vsTestCases = Enumerable.Repeat(1, testCaseCount).Select(x => new VsTestPlatform.TestCase() { Id = Guid.NewGuid() }).ToArray();
-            uut.HandleDiscoveredTests(vsTestCases);
+            var testCases = Enumerable.Repeat(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            uut.HandleDiscoveredTests(testCases);
 
-            foreach (var testCase in vsTestCases)
+            foreach (var testCase in testCases)
                 testObjectFactory.Received(1).TranslateTestCase(testCase);
         }
 
@@ -309,9 +309,9 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var testObjectFactory = Substitute.For<ITestObjectFactory>();
             var translatedTestCases = new List<ITestCase>();
-            testObjectFactory.TranslateTestCase(Arg.Any<VsTestPlatform.TestCase>()).Returns(x =>
+            testObjectFactory.TranslateTestCase(Arg.Any<TestCase>()).Returns(x =>
             {
-                var translatedTestCase = FakeTestObjectFactory.Default.TranslateTestCase((VsTestPlatform.TestCase)x[0]);
+                var translatedTestCase = FakeTestObjectFactory.Default.TranslateTestCase((TestCase)x[0]);
                 translatedTestCases.Add(translatedTestCase);
                 return translatedTestCase;
             });
@@ -324,8 +324,8 @@ namespace BetterTestExplorerTests.ManagersTests
             var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>())).Do(x => args = (TestCasesEventArgs)x[1]);
             uut.TestCasesDiscovered += handler;
-            var vsTestCases = Enumerable.Repeat(1, testCaseCount).Select(x => new VsTestPlatform.TestCase() { Id = Guid.NewGuid() }).ToArray();
-            uut.HandleDiscoveredTests(vsTestCases);
+            var testCases = Enumerable.Repeat(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            uut.HandleDiscoveredTests(testCases);
 
             handler.Received(1).Invoke(uut, Arg.Any<TestCasesEventArgs>());
             CollectionAssert.AreEquivalent(translatedTestCases, args.TestCasesById.Values);
@@ -346,7 +346,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
             uut.TestCasesDiscovered += handler;
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
 
             handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>());
         }
@@ -361,7 +361,7 @@ namespace BetterTestExplorerTests.ManagersTests
 
             var handler = Substitute.For<EventHandler<DiscoveryCompletedEventArgs>>();
             uut.DiscoveryCompleted += handler;
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
 
             handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<DiscoveryCompletedEventArgs>());
         }
@@ -410,7 +410,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var uut = new TestCaseDiscoveryManager(testObjectFactory, vstest);
 
             uut.DiscoverTestCasesAsync(Enumerable.Empty<string>()).Wait();
-            var lastChunk = Enumerable.Repeat(1, testCaseCount).Select(x => new VsTestPlatform.TestCase() { Id = Guid.NewGuid() }).ToArray();
+            var lastChunk = Enumerable.Repeat(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
             uut.HandleDiscoveryComplete(0, lastChunk, false);
 
             foreach (var testCase in lastChunk)
@@ -422,9 +422,9 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
             var translatedTestCases = new List<ITestCase>();
-            testObjectFactory.TranslateTestCase(Arg.Any<VsTestPlatform.TestCase>()).Returns(x =>
+            testObjectFactory.TranslateTestCase(Arg.Any<TestCase>()).Returns(x =>
             {
-                var translatedTestCase = FakeTestObjectFactory.Default.TranslateTestCase((VsTestPlatform.TestCase)x[0]);
+                var translatedTestCase = FakeTestObjectFactory.Default.TranslateTestCase((TestCase)x[0]);
                 translatedTestCases.Add(translatedTestCase);
                 return translatedTestCase;
             });
@@ -437,7 +437,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var handler = Substitute.For<EventHandler<TestCasesEventArgs>>();
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestCasesEventArgs>())).Do(x => args = (TestCasesEventArgs)x[1]);
             uut.TestCasesDiscovered += handler;
-            var lastChunk = Enumerable.Repeat(1, testCaseCount).Select(x => new VsTestPlatform.TestCase() { Id = Guid.NewGuid() }).ToArray();
+            var lastChunk = Enumerable.Repeat(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
             uut.HandleDiscoveryComplete(0, lastChunk, false);
 
             handler.Received(1).Invoke(uut, Arg.Any<TestCasesEventArgs>());
@@ -458,7 +458,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var handler = Substitute.For<EventHandler<DiscoveryCompletedEventArgs>>();
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<DiscoveryCompletedEventArgs>())).Do(x => args = (DiscoveryCompletedEventArgs)x[1]);
             uut.DiscoveryCompleted += handler;
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
 
             handler.Received(1).Invoke(uut, Arg.Any<DiscoveryCompletedEventArgs>());
             CollectionAssert.AreEquivalent(sourceAssemblyPaths, args.SourceAssemblyPaths);
@@ -477,7 +477,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var handler = Substitute.For<EventHandler<DiscoveryCompletedEventArgs>>();
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<DiscoveryCompletedEventArgs>())).Do(x => args = (DiscoveryCompletedEventArgs)x[1]);
             uut.DiscoveryCompleted += handler;
-            uut.HandleDiscoveryComplete(1, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(1, Enumerable.Empty<TestCase>(), false);
 
             handler.Received(1).Invoke(uut, Arg.Any<DiscoveryCompletedEventArgs>());
             Assert.IsTrue(args.WasDiscoveryAborted);
@@ -497,7 +497,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var handler = Substitute.For<EventHandler<DiscoveryCompletedEventArgs>>();
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<DiscoveryCompletedEventArgs>())).Do(x => args = (DiscoveryCompletedEventArgs)x[1]);
             uut.DiscoveryCompleted += handler;
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), isAborted);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), isAborted);
 
             handler.Received(1).Invoke(uut, Arg.Any<DiscoveryCompletedEventArgs>());
             Assert.AreEqual(isAborted, args.WasDiscoveryAborted);
@@ -512,7 +512,7 @@ namespace BetterTestExplorerTests.ManagersTests
             var uut = new TestCaseDiscoveryManager(testObjectFactory, vstest);
 
             uut.DiscoverTestCasesAsync(Enumerable.Empty<string>()).Wait();
-            uut.HandleDiscoveryComplete(0, Enumerable.Empty<VsTestPlatform.TestCase>(), false);
+            uut.HandleDiscoveryComplete(0, Enumerable.Empty<TestCase>(), false);
 
             var result = uut.IsDiscoveryInProgress;
 
