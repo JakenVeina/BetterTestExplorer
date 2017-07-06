@@ -11,10 +11,12 @@ using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
-using DiscoveryCompletedEventArgs = BetterTestExplorer.Common.DiscoveryCompletedEventArgs;
 
 using BetterTestExplorer.Common;
+using BetterTestExplorer.TestPlatform;
 using BetterTestExplorer.Managers;
+
+using BetterTestExplorerTests.TestPlatformTests;
 
 namespace BetterTestExplorerTests.ManagersTests
 {
@@ -29,8 +31,9 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var fileSystem = (IFileSystem)null;
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestResultManager(fileSystem, discoveryManager));
+            var result = Assert.Throws<ArgumentNullException>(() => new TestResultManager(fileSystem, discoveryManager, testObjectFactory));
 
             Assert.AreEqual("fileSystem", result.ParamName);
         }
@@ -40,10 +43,23 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = (ITestCaseDiscoveryManager)null;
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var result = Assert.Throws<ArgumentNullException>(() => new TestResultManager(fileSystem, discoveryManager));
+            var result = Assert.Throws<ArgumentNullException>(() => new TestResultManager(fileSystem, discoveryManager, testObjectFactory));
 
             Assert.AreEqual("discoveryManager", result.ParamName);
+        }
+
+        [Test]
+        public void Constructor_TestObjectFactoryIsNull_ThrowsException()
+        {
+            var fileSystem = Substitute.For<IFileSystem>();
+            var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = (ITestObjectFactory)null;
+
+            var result = Assert.Throws<ArgumentNullException>(() => new TestResultManager(fileSystem, discoveryManager, testObjectFactory));
+
+            Assert.AreEqual("testObjectFactory", result.ParamName);
         }
 
         [Test]
@@ -51,19 +67,21 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             CollectionAssert.IsEmpty(uut.SourceAssemblyPaths);
         }
 
         [Test]
-        public void Constructor_Otherwise_SetsTestCasesToEmpty()
+        public void Constructor_Otherwise_SetsTestResultsToEmpty()
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             CollectionAssert.IsEmpty(uut.TestResults);
         }
@@ -73,8 +91,9 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             discoveryManager.Received(1).TestCasesDiscovered += Arg.Any<EventHandler<DiscoveredTestsEventArgs>>();
         }
@@ -84,8 +103,9 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             discoveryManager.Received(1).DiscoveryCompleted += Arg.Any<EventHandler<DiscoveryCompletedEventArgs>>();
         }
@@ -100,8 +120,9 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var result = Assert.ThrowsAsync<ArgumentNullException>(async () => await uut.AddSourceAssemblyPathAsync(null));
 
@@ -116,8 +137,9 @@ namespace BetterTestExplorerTests.ManagersTests
             path.GetFullPath(Arg.Any<string>()).Returns(sourceAssemblyPath);
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -133,8 +155,9 @@ namespace BetterTestExplorerTests.ManagersTests
             path.GetFullPath(Arg.Any<string>()).Returns(x => throw exception);
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath));
 
@@ -143,13 +166,14 @@ namespace BetterTestExplorerTests.ManagersTests
         }
 
         [TestCase("DummyAssembly")]
-        public async Task AddSourceAssemblyPathAsync_SourceAssemblyPathsContainsFileSystemPathGetFullPathWithSourceAssemblyPath_ThrowsException(string sourceAssemblyPath)
+        public async Task AddSourceAssemblyPathAsync_SourceAssemblyPathsContainsFileSystemPathGetFullPath_ThrowsException(string sourceAssemblyPath)
         {
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath));
@@ -166,8 +190,9 @@ namespace BetterTestExplorerTests.ManagersTests
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
             discoveryManager.IsDiscoveryInProgress.Returns(true, true, true, false, true);
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(Task.CompletedTask);
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -183,8 +208,9 @@ namespace BetterTestExplorerTests.ManagersTests
             discoveryManager.IsDiscoveryInProgress.Returns(true);
             var taskCompletionSource = new TaskCompletionSource<int>();
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(taskCompletionSource.Task);
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var task = uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -205,8 +231,9 @@ namespace BetterTestExplorerTests.ManagersTests
             discoveryManager.IsDiscoveryInProgress.Returns(true);
             var taskCompletionSource = new TaskCompletionSource<int>();
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(taskCompletionSource.Task);
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var task = uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -227,8 +254,9 @@ namespace BetterTestExplorerTests.ManagersTests
             discoveryManager.IsDiscoveryInProgress.Returns(true);
             var taskCompletionSource = new TaskCompletionSource<int>();
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(taskCompletionSource.Task);
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var task = uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
@@ -246,8 +274,9 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             var expected = fileSystem.Path.GetFullPath(sourceAssemblyPath);
@@ -256,20 +285,21 @@ namespace BetterTestExplorerTests.ManagersTests
         }
 
         [TestCase("DummyAssembly")]
-        public async Task AddSourceAssemblyPathAsync_Otherwise_InvokesDiscoverTestsAsyncWithSourceAssemblyPath(string sourceAssemblyPath)
+        public async Task AddSourceAssemblyPathAsync_Otherwise_InvokesDiscoveryManagerDiscoverTestsAsyncWithSourceAssemblyPath(string sourceAssemblyPath)
         {
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
             IEnumerable<string> receivedSources = null;
             discoveryManager.When(x => x.DiscoverTestCasesAsync(Arg.Any<IEnumerable<string>>())).Do(x => receivedSources = (IEnumerable<string>)x[0]);
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             var expected = fileSystem.Path.GetFullPath(sourceAssemblyPath);
 
-            await discoveryManager.Received().DiscoverTestCasesAsync(Arg.Any<IEnumerable<string>>());
+            await discoveryManager.Received(1).DiscoverTestCasesAsync(Arg.Any<IEnumerable<string>>());
             CollectionAssert.AreEquivalent(receivedSources, Enumerable.Repeat(expected, 1));
         }
 
@@ -283,8 +313,9 @@ namespace BetterTestExplorerTests.ManagersTests
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var result = Assert.ThrowsAsync<ArgumentNullException>(async () => await uut.RemoveSourceAssemblyPathAsync(null));
 
@@ -299,8 +330,9 @@ namespace BetterTestExplorerTests.ManagersTests
             path.GetFullPath(Arg.Any<string>()).Returns(sourceAssemblyPath);
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
             path.ClearReceivedCalls();
 
@@ -318,8 +350,9 @@ namespace BetterTestExplorerTests.ManagersTests
             path.GetFullPath(Arg.Any<string>()).Returns(x => throw exception);
             fileSystem.Path.Returns(path);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath));
 
@@ -328,13 +361,14 @@ namespace BetterTestExplorerTests.ManagersTests
         }
 
         [TestCase("DummyAssembly")]
-        public void RemoveSourceAssemblyPathAsync_SourceAssemblyPathsDoesNotContainFileSystemPathGetFullPathWithSourceAssemblyPath_ThrowsException(string sourceAssemblyPath)
+        public void RemoveSourceAssemblyPathAsync_SourceAssemblyPathsDoesNotContainFileSystemPathGetFullPath_ThrowsException(string sourceAssemblyPath)
         {
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var result = Assert.ThrowsAsync<ArgumentException>(async () => await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath));
 
@@ -348,8 +382,9 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
             discoveryManager.ClearReceivedCalls();
@@ -367,8 +402,9 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -386,13 +422,14 @@ namespace BetterTestExplorerTests.ManagersTests
         }
 
         [TestCase("DummyAssembly")]
-        public void RemoveSourceAssemblyPathAsync_DiscoveryManagerWaitForDiscoveryCompleteHasNotCompleted_TestCasesContainsTestCasesWhereSourceEqualsSourceAssemblyPath(string sourceAssemblyPath)
+        public void RemoveSourceAssemblyPathAsync_DiscoveryManagerWaitForDiscoveryCompleteHasNotCompletedAndTestResultsContainsItemsWhereTestCaseSourceEqualsSourceAssemblyPath_TestResultsIsEquivalentToInitial(string sourceAssemblyPath)
         {
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -400,25 +437,30 @@ namespace BetterTestExplorerTests.ManagersTests
             discoveryManager.WaitForDiscoveryCompleteAsync().Returns(taskCompletionSource.Task);
             var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), fileSystem.Path.GetFullPath(sourceAssemblyPath));
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
-            
+            var expected = uut.TestResults.ToArray();
+
             var task = uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
 
             Task.Delay(100).Wait();
 
-            CollectionAssert.Contains(uut.TestResults, testCase);
+            var result = uut.TestResults;
 
+            CollectionAssert.AreEquivalent(expected, result);
+
+            // Cleanup
             discoveryManager.IsDiscoveryInProgress.Returns(false);
             taskCompletionSource.SetResult(0);
         }
 
         [TestCase("DummyAssembly")]
-        public void RemoveSourceAssemblyPathAsync_DiscoveryManagerWaitForDiscoveryCompleteHasNotCompleted_DoesNotRaiseTestCasesRemoved(string sourceAssemblyPath)
+        public void RemoveSourceAssemblyPathAsync_DiscoveryManagerWaitForDiscoveryCompleteHasNotCompletedAndTestResultsContainsItemsWhereTestCaseSourceEqualsSourceAssemblyPath_DoesNotRaiseTestResultsRemoved(string sourceAssemblyPath)
         {
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -446,8 +488,9 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             uut.AddSourceAssemblyPathAsync(sourceAssemblyPath).Wait();
 
             discoveryManager.IsDiscoveryInProgress.Returns(true);
@@ -472,8 +515,9 @@ namespace BetterTestExplorerTests.ManagersTests
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
 
             await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
@@ -482,35 +526,39 @@ namespace BetterTestExplorerTests.ManagersTests
             CollectionAssert.DoesNotContain(uut.SourceAssemblyPaths, expected);
         }
 
-        [TestCase("DummyAssembly")]
-        public async Task RemoveSourceAssemblyPathAsync_Otherwise_TestCasesDoesNotContainTestCasesWhereSourceEqualsSourceAssemblyPath(string sourceAssemblyPath)
+        [TestCase("DummyAssembly", 3)]
+        public async Task RemoveSourceAssemblyPathAsync_TestResultsEachTestCaseSourceEqualsFileSystemPathGetFullPath_TestResultsIsEmpty(string sourceAssemblyPath, int testResultCount)
         {
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
-            var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), fileSystem.Path.GetFullPath(sourceAssemblyPath));
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            var testCases = Enumerable.Repeat(1, testResultCount).Select(x => new TestCase() { Id = Guid.NewGuid(), Source = fileSystem.Path.GetFullPath(sourceAssemblyPath) }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases));
 
             await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
-            var expected = uut.TestResults.Where(x => x.Source == fileSystem.Path.GetFullPath(sourceAssemblyPath));
 
-            CollectionAssert.DoesNotContain(expected, testCase);            
+            var result = uut.TestResults;
+
+            CollectionAssert.IsEmpty(result);
         }
 
-        [TestCase("DummyAssembly")]
-        public async Task RemoveSourceAssemblyPathAsync_Otherwise_RaisesTestCasesRemovedWithTestCasesWhereSourceEqualsSourceAssemblyPath(string sourceAssemblyPath)
+        [TestCase("DummyAssembly", 3)]
+        public async Task RemoveSourceAssemblyPathAsync_TestResultsEachTestCaseSourceEqualsFileSystemPathGetFullPath_RaisesTestResultsRemovedWithTestResults(string sourceAssemblyPath, int testResultCount)
         {
             var fileSystem = new MockFileSystem(null, "DummyDirectory");
             fileSystem.AddFile(sourceAssemblyPath, sourceAssemblyPath);
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
             await uut.AddSourceAssemblyPathAsync(sourceAssemblyPath);
-            var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), fileSystem.Path.GetFullPath(sourceAssemblyPath));
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            var testCases = Enumerable.Repeat(1, testResultCount).Select(x => new TestCase() { Id = Guid.NewGuid(), Source = fileSystem.Path.GetFullPath(sourceAssemblyPath) }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases));
+            var expected = uut.TestResults.ToArray();
 
             var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
             TestResultsEventArgs receivedArgs = null;
@@ -520,7 +568,7 @@ namespace BetterTestExplorerTests.ManagersTests
             await uut.RemoveSourceAssemblyPathAsync(sourceAssemblyPath);
 
             handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase);
+            CollectionAssert.AreEquivalent(expected, receivedArgs.TestResultsByTestCaseId.Values);
         }
 
         #endregion RemoveSourceAssemblyPathAsync Tests
@@ -528,97 +576,172 @@ namespace BetterTestExplorerTests.ManagersTests
         /**********************************************************************/
         #region DiscoveryManager.TestCasesDiscovered Tests
 
-        // Impossible to test through NUnit
+        // Impossible to achieve test condition with NSubstitute
+        //[Test]
         public void DiscoveryManagerTestCasesDiscovered_EIsNull_ThrowsException() { }
 
-        [Test]
-        public void DiscoveryManagerTestCasesDiscovered_TestCasesIdsDoesNotContainAnyEDiscoveredTestCasesIds_TestCasesContainsEDiscoveredTestCases()
+        [TestCase(3)]
+        public void DiscoveryManagerTestCasesDiscovered_TestResultsIsEmpty_InvokesTestObjectFactoryCreateTestResultWithEachEDiscoveredTestCase(int testCaseCount)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
-            var testCase = new TestCase();
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            var testCases = Enumerable.Range(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases));
 
-            CollectionAssert.Contains(uut.TestResults, testCase);
+            foreach (var testCase in testCases)
+                testObjectFactory.Received(1).CreateTestResult(testCase);
         }
 
-        [Test]
-        public void DiscoveryManagerTestCasesDiscovered_TestCasesIdsDoesNotContainAnyEDiscoveredTestCasesIds_RaisesTestCasesAddedWithEDiscoveredTestCases()
+        [TestCase(3)]
+        public void DiscoveryManagerTestCasesDiscovered_TestResultsIsEmpty_TestResultsContainsEachTestObjectFactoryCreateTestResult(int testCaseCount)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
+            var createdTestResults = new List<ITestResult>();
+            testObjectFactory.CreateTestResult(Arg.Any<TestCase>()).Returns(x =>
+            {
+                var testResult = FakeTestObjectFactory.Default.CreateTestResult((TestCase)x[0]);
+                createdTestResults.Add(testResult);
+                return testResult;
+            });
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
+
+            var testCases = Enumerable.Range(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases));
+
+            var result = uut.TestResults;
+
+            CollectionAssert.AreEquivalent(createdTestResults, result);
+        }
+
+        [TestCase(3)]
+        public void DiscoveryManagerTestCasesDiscovered_TestResultsIsEmpty_RaisesTestCasesAddedWithEachTestObjectFactoryCreateTestResult(int testCaseCount)
+        {
+            var fileSystem = Substitute.For<IFileSystem>();
+            var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
+            var createdTestResults = new List<ITestResult>();
+            testObjectFactory.CreateTestResult(Arg.Any<TestCase>()).Returns(x =>
+            {
+                var testResult = FakeTestObjectFactory.Default.CreateTestResult((TestCase)x[0]);
+                createdTestResults.Add(testResult);
+                return testResult;
+            });
+
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
             var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
             TestResultsEventArgs receivedArgs = null;
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>())).Do(x => receivedArgs = (TestResultsEventArgs)x[1]);
             uut.TestResultsAdded += handler;
-            var testCase = new TestCase();
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            var testCases = Enumerable.Range(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases));
 
             handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase);
+            CollectionAssert.AreEquivalent(createdTestResults, receivedArgs.TestResultsByTestCaseId.Values);
         }
 
-        [Test]
-        public void DiscoveryManagerTestCasesDiscovered_TestCasesIdsContainsEachEDiscoveredTestCasesIds_TestCasesContainsEDiscoveredTestCases()
+        [TestCase(3)]
+        public void DiscoveryManagerTestCasesDiscovered_EDiscoveredTestCasesIdsContainsEachTestResultsTestCaseId_InvokesTestObjectFactoryCloneTestResultWithEachEDiscoveredTestCase(int testCaseCount)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
-            var testCase1 = new TestCase();
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase1, 1)));
+            var testCases1 = Enumerable.Range(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases1));
 
-            var testCase2 = new TestCase() { Id = testCase1.Id };
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase2, 1)));
+            var testCases2 = testCases1.Select(x => new TestCase() { Id = x.Id }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases2));
 
-            CollectionAssert.Contains(uut.TestResults, testCase2);
+            foreach (var testCase2 in testCases2)
+                testObjectFactory.Received(1).CloneTestResult(Arg.Any<ITestResult>(), testCase2);
         }
 
-        [Test]
-        public void DiscoveryManagerTestCasesDiscovered_TestCasesIdsContainsEachEDiscoveredTestCasesIds_TestCasesDoesNotContainTestCases()
+        [TestCase(3)]
+        public void DiscoveryManagerTestCasesDiscovered_EDiscoveredTestCasesIdsContainsEachTestResultsTestCaseId_InvokesTestObjectFactoryCloneTestResultWithEachTestResult(int testCaseCount)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
-            var testCase1 = new TestCase();
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase1, 1)));
+            var testCases1 = Enumerable.Range(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases1));
+            var testResults = uut.TestResults.ToArray();
 
-            var testCase2 = new TestCase() { Id = testCase1.Id };
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase2, 1)));
+            var testCases2 = testCases1.Select(x => new TestCase() { Id = x.Id }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases2));
 
-            CollectionAssert.DoesNotContain(uut.TestResults, testCase1);
+            foreach (var testResult in testResults)
+                testObjectFactory.Received(1).CloneTestResult(testResult, Arg.Any<TestCase>());
         }
 
-        [Test]
-        public void DiscoveryManagerTestCasesDiscovered_TestCasesIdsContainsEachEDiscoveredTestCasesIds_RaisesTestCasesModifiedWithEDiscoveredTestCases()
+        [TestCase(3)]
+        public void DiscoveryManagerTestCasesDiscovered_EDiscoveredTestCasesIdsContainsEachTestResultsTestCaseId_TestResultsIsEquivalentToEachTestObjectFactoryCloneTestResult(int testCaseCount)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
+            var clonedTestResults = new List<ITestResult>();
+            testObjectFactory.CloneTestResult(Arg.Any<ITestResult>(), Arg.Any<TestCase>()).Returns(x =>
+            {
+                var testResult = FakeTestObjectFactory.Default.CloneTestResult((ITestResult)x[0], (TestCase)x[1]);
+                clonedTestResults.Add(testResult);
+                return testResult;
+            });
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
 
-            var testCase1 = new TestCase();
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase1, 1)));
+            var testCases1 = Enumerable.Range(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases1));
+
+            var testCases2 = testCases1.Select(x => new TestCase() { Id = x.Id }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases2));
+
+            var result = uut.TestResults;
+
+            CollectionAssert.AreEquivalent(clonedTestResults, result);
+        }
+
+        [TestCase(3)]
+        public void DiscoveryManagerTestCasesDiscovered_EDiscoveredTestCasesIdsContainsEachTestResultsTestCaseId_RaisesTestResultsModifiedWithEachTestObjectFactoryCloneTestResult(int testCaseCount)
+        {
+            var fileSystem = Substitute.For<IFileSystem>();
+            var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = Substitute.ForPartsOf<FakeTestObjectFactory>();
+            var clonedTestResults = new List<ITestResult>();
+            testObjectFactory.CloneTestResult(Arg.Any<ITestResult>(), Arg.Any<TestCase>()).Returns(x =>
+            {
+                var testResult = FakeTestObjectFactory.Default.CloneTestResult((ITestResult)x[0], (TestCase)x[1]);
+                clonedTestResults.Add(testResult);
+                return testResult;
+            });
+
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
+
+            var testCases1 = Enumerable.Range(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases1));
 
             var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
             TestResultsEventArgs receivedArgs = null;
             handler.When(x => x.Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>())).Do(x => receivedArgs = (TestResultsEventArgs)x[1]);
             uut.TestResultsModified += handler;
 
-            var testCase2 = new TestCase() { Id = testCase1.Id };
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase2, 1)));
+            var testCases2 = testCases1.Select(x => new TestCase() { Id = x.Id }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases2));
 
             handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase2);
+            CollectionAssert.AreEquivalent(clonedTestResults, receivedArgs.TestResultsByTestCaseId.Values);
         }
 
         #endregion DiscoveryManager.TestCasesDiscovered Tests
@@ -626,50 +749,58 @@ namespace BetterTestExplorerTests.ManagersTests
         /**********************************************************************/
         #region DiscoveryManager.DiscoveryComplete Tests
 
-        // Impossible to test through NUnit
+        // Impossible to achieve test condition with NSubstitute
+        //[Test]
         public void DiscoveryManagerDiscoveryComplete_EIsNull_ThrowsException() { }
 
-        [Test]
-        public void DiscoveryManagerDiscoveryComplete_ReceivedTestCasesDiscoveredSinceLastDiscoveryComplete_TestCasesContainsTestsDiscoveredEDiscoveredTestCases()
+        [TestCase(3)]
+        public void DiscoveryManagerDiscoveryComplete_TestResultsIsNotEmptyAndDiscoveryCompleteHasNotBeenReceived_TestResultsIsEquivalentToInitial(int testCaseCount)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
-            var testCase = new TestCase();
-            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
+            var testCases = Enumerable.Repeat(1, testCaseCount).Select(x => new TestCase() { Id = Guid.NewGuid() }).ToArray();
+            discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(testCases));
+            var expected = uut.TestResults.ToArray();
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
 
-            CollectionAssert.Contains(uut.TestResults, testCase);
+            var result = uut.TestResults;
+
+            CollectionAssert.AreEquivalent(expected, result);
         }
 
         [Test]
-        public void DiscoveryManagerDiscoveryComplete_TestCasesIsNotEmptyAndEIsAbortedIsTrue_TestCasesDoesNotChange()
+        public void DiscoveryManagerDiscoveryComplete_TestResultsIsNotEmptyAndDiscoveryCompleteHasBeenReceivedAndEIsAbortedIsTrue_TestResultsIsEquivalentToInitial()
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
-            var testCase = new TestCase();
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
+            var testCase = new TestCase() { Id = Guid.NewGuid() };
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
-            var expected = uut.TestResults.ToList();
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
+            var expected = uut.TestResults.ToArray();
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), true));
 
             var result = uut.TestResults;
 
-            CollectionAssert.AreEqual(expected, result);
+            CollectionAssert.AreEquivalent(expected, result);
         }
 
         [Test]
-        public void DiscoveryManagerDiscoveryComplete_TestCasesIsNotEmptyAndEIsAbortedIsTrue_DoesNotRaiseTestCasesRemoved()
+        public void DiscoveryManagerDiscoveryComplete_TestResultsIsNotEmptyAndDiscoveryCompleteHasBeenReceivedAndEIsAbortedIsTrue_DoesNotRaiseTestCasesRemoved()
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
-            var testCase = new TestCase();
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
+            var testCase = new TestCase() { Id = Guid.NewGuid() };
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
 
@@ -681,17 +812,17 @@ namespace BetterTestExplorerTests.ManagersTests
             handler.DidNotReceive().Invoke(Arg.Any<object>(), Arg.Any<TestResultsEventArgs>());
         }
 
-        [Test]
-        public void DiscoveryManagerDiscoveryComplete_TestCasesIsNotEmptyAndEIsAbortedIsFalse_TestCasesIsEmpty()
+        [TestCase("DummyAssembly")]
+        public void DiscoveryManagerDiscoveryComplete_TestResultsIsNotEmptyAndDiscoveryCompleteHasBeenReceivedAndEIsAbortedIsFalse_TestResultsIsEmpty(string sourceAssemblyPath)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
-            var sourceAssemblyPath = "DummySource";
-            var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), sourceAssemblyPath);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
+            var testCase = new TestCase() { Id = Guid.NewGuid(), Source = sourceAssemblyPath };
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
-            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
 
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
@@ -700,17 +831,18 @@ namespace BetterTestExplorerTests.ManagersTests
             CollectionAssert.IsEmpty(result);
         }
 
-        [Test]
-        public void DiscoveryManagerDiscoveryComplete_TestCasesIsNotEmptyAndEIsAbortedIsFalse_RaisesTestCasesRemovedWithTestCases()
+        [TestCase("DummyAssembly")]
+        public void DiscoveryManagerDiscoveryComplete_TestResultsIsNotEmptyAndDiscoveryCompleteHasBeenReceivedAndEIsAbortedIsFalse_RaisesTestResultsRemovedWithTestResults(string sourceAssemblyPath)
         {
             var fileSystem = Substitute.For<IFileSystem>();
             var discoveryManager = Substitute.For<ITestCaseDiscoveryManager>();
+            var testObjectFactory = FakeTestObjectFactory.Default;
 
-            var uut = new TestResultManager(fileSystem, discoveryManager);
-            var sourceAssemblyPath = "DummySource";
-            var testCase = new TestCase("DummyTestCase", new Uri("uri://dummy"), sourceAssemblyPath);
+            var uut = new TestResultManager(fileSystem, discoveryManager, testObjectFactory);
+            var testCase = new TestCase() { Id = Guid.NewGuid(), Source = sourceAssemblyPath };
             discoveryManager.TestCasesDiscovered += Raise.EventWith(discoveryManager, new DiscoveredTestsEventArgs(Enumerable.Repeat(testCase, 1)));
-            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
+            discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Empty<string>(), false));
+            var expected = uut.TestResults.ToArray();
 
             var handler = Substitute.For<EventHandler<TestResultsEventArgs>>();
             TestResultsEventArgs receivedArgs = null;
@@ -720,7 +852,7 @@ namespace BetterTestExplorerTests.ManagersTests
             discoveryManager.DiscoveryCompleted += Raise.EventWith(discoveryManager, new DiscoveryCompletedEventArgs(Enumerable.Repeat(sourceAssemblyPath, 1), false));
 
             handler.Received(1).Invoke(uut, Arg.Any<TestResultsEventArgs>());
-            CollectionAssert.Contains(receivedArgs.TestResultsByTestCaseId.Values, testCase);
+            CollectionAssert.AreEquivalent(expected, receivedArgs.TestResultsByTestCaseId.Values);
         }
 
         #endregion DiscoveryManager.DiscoveryComplete Tests

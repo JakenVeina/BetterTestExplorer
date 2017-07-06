@@ -20,7 +20,9 @@ namespace BetterTestExplorerTests.TestPlatformTests
         public virtual ITestCase TranslateTestCase(TestCase testCase)
         {
             var newTestCase = Substitute.For<ITestCase>();
-            newTestCase.Id.Returns(Guid.NewGuid());
+            newTestCase.Id.Returns(testCase.Id);
+            newTestCase.DisplayName.Returns(testCase.DisplayName);
+            newTestCase.Source.Returns(testCase.Source);
 
             return newTestCase;
         }
@@ -30,11 +32,12 @@ namespace BetterTestExplorerTests.TestPlatformTests
             var newTestResult = Substitute.For<ITestResult>();
             var testCase = TranslateTestCase(testResult.TestCase);
             newTestResult.TestCase.Returns(testCase);
+            newTestResult.DisplayName.Returns(testResult.DisplayName);
 
             return newTestResult;
         }
 
-        public virtual ITestResult CreateDefaultTestResult(TestCase testCase)
+        public virtual ITestResult CreateTestResult(TestCase testCase)
         {
             var testResult = Substitute.For<ITestResult>();
             var newTestCase = TranslateTestCase(testCase);

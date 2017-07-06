@@ -17,7 +17,7 @@ namespace BetterTestExplorer.TestPlatform
 
         ITestResult TranslateTestResult(TestResult testResult);
 
-        ITestResult CreateDefaultTestResult(TestCase testCase);
+        ITestResult CreateTestResult(TestCase testCase);
 
         ITestResult CloneTestResult(ITestResult testResult, TestCase testCase);
 
@@ -35,7 +35,7 @@ namespace BetterTestExplorer.TestPlatform
         public ITestResult TranslateTestResult(TestResult testResult)
             => new ReadOnlyTestResult(this, testResult);
 
-        public ITestResult CreateDefaultTestResult(TestCase testCase)
+        public ITestResult CreateTestResult(TestCase testCase)
             => new ReadOnlyTestResult(this, testCase);
 
         public ITestResult CloneTestResult(ITestResult testResult, TestCase testCase)

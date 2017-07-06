@@ -67,6 +67,11 @@ namespace BetterTestExplorer.Managers
             _discoveryManager = discoveryManager ?? throw new ArgumentNullException(nameof(discoveryManager));
             _testObjectFactory = testObjectFactory ?? throw new ArgumentNullException(nameof(testObjectFactory));
 
+            // PENDING: Need to write an IReadOnlyCollection class that can take a HashSet, and/or write IReadOnlySet and implement that.
+            // ReadOnlyCollection requires IList, due to legacy implementations, and when the new ReadOnly interfaces were added, they didn't
+            // implement any ReadOnly class that can wrap a HashSet. Goddamnit.
+            SourceAssemblyPaths = _sourceAssemblyPaths;
+
             _discoveryManager.TestCasesDiscovered += OnTestCasesDiscovered;
             _discoveryManager.DiscoveryCompleted += OnDiscoveryComplete;
         }
@@ -201,7 +206,7 @@ namespace BetterTestExplorer.Managers
                 }
                 else
                 {
-                    var newTestResult = _testObjectFactory.CreateDefaultTestResult(testCase);
+                    var newTestResult = _testObjectFactory.CreateTestResult(testCase);
                     _testResultsByTestCaseId.Add(testCase.Id, newTestResult);
                     addedTestResults.Add(newTestResult);
                 }

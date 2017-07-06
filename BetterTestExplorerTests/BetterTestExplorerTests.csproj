@@ -99,7 +99,7 @@
     <Compile Include="TestPlatformTests\TestResultWrapperTests.cs" />
     <None Include="SandboxTests.cs" />
     <Compile Include="ManagersTests\TestCaseDiscoveryManagerTests.cs" />
-    <None Include="ManagersTests\TestResultManagerTests.cs" />
+    <Compile Include="ManagersTests\TestResultManagerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
